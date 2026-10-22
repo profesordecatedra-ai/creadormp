@@ -1,0 +1,3706 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Vocalis Studio · Estudio de producción</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#090d1a">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjOGI1Y2Y2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZWM0ODk5Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTYiIGZpbGw9InVybCgjZykiLz48ZyBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iNC41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxyZWN0IHg9IjI1IiB5PSIxMiIgd2lkdGg9IjE0IiBoZWlnaHQ9IjI1IiByeD0iNyIvPjxwYXRoIGQ9Ik0xNyAzMWExNSAxNSAwIDAgMCAzMCAwIi8+PHBhdGggZD0iTTMyIDQ2djciLz48L2c+PC9zdmc+Cg==" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #090d1a;
+  --bg-2: #0d1426;
+  --panel: #111a2f;
+  --panel-2: #16213a;
+  --field: #0a1020;
+  --line: rgba(255, 255, 255, .08);
+  --line-2: rgba(255, 255, 255, .15);
+  --text: #eef1f8;
+  --muted: #94a0bb;
+  --dim: #66728f;
+  --gold: #f5a524;
+  --gold-2: #ffcf5c;
+  --violet: #8b5cf6;
+  --violet-2: #c4b5fd;
+  --pink: #ec4899;
+  --green: #34d399;
+  --red: #f87171;
+  --blue: #60a5fa;
+  --r: 16px;
+  --font: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; font-family: var(--font); color: var(--text); font-size: 15px; line-height: 1.5;
+  background: radial-gradient(1000px 600px at 100% -10%, rgba(139, 92, 246, .12), transparent 60%),
+              radial-gradient(800px 500px at -10% 20%, rgba(245, 165, 36, .06), transparent 60%), var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+h1, h2, h3, h4 { margin: 0; line-height: 1.2; letter-spacing: -.015em; }
+h1 { font-size: 1.6rem; font-weight: 800; }
+h2 { font-size: 1.15rem; font-weight: 800; }
+h3 { font-size: 1rem; font-weight: 700; }
+p { margin: 0; }
+[hidden] { display: none !important; }
+.muted { color: var(--muted); }
+.small { font-size: .84rem; }
+.mono { font-family: var(--mono); }
+
+/* ---------- Layout ---------- */
+.app { display: grid; grid-template-columns: 236px 1fr; min-height: 100vh; }
+.side {
+  position: sticky; top: 0; height: 100vh; padding: 20px 14px; border-right: 1px solid var(--line);
+  background: rgba(9, 13, 26, .8); display: flex; flex-direction: column; gap: 6px;
+}
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; text-decoration: none; }
+.brand-icon { position: relative; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, var(--violet), var(--pink)); flex-shrink: 0; }
+.brand-icon.has-logo { background: #fff; overflow: visible; }
+.brand-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: inherit; display: block; }
+.brand-icon::after { content: ""; position: absolute; right: -2px; bottom: -2px; width: 11px; height: 11px; border-radius: 50%; background: var(--green); border: 2px solid var(--bg); }
+.brand b { display: block; font-size: 1.05rem; font-weight: 800; letter-spacing: -.02em; }
+.brand small { color: var(--violet-2); font-size: .7rem; font-weight: 700; letter-spacing: .08em; }
+.nav-item {
+  display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 11px; text-decoration: none;
+  color: var(--muted); font-weight: 600; transition: background .15s, color .15s;
+}
+.nav-item svg { width: 19px; height: 19px; flex-shrink: 0; }
+.nav-item:hover { background: rgba(255, 255, 255, .05); color: var(--text); }
+.nav-item.active { background: linear-gradient(90deg, rgba(245, 165, 36, .16), rgba(245, 165, 36, .04)); color: var(--gold-2); box-shadow: inset 2px 0 0 var(--gold); }
+.side-foot { margin-top: auto; padding: 12px; border-radius: 12px; border: 1px solid var(--line); font-size: .8rem; color: var(--muted); }
+.side-foot .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; background: var(--dim); }
+.side-foot .dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.side-foot .dot.warn { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+.side-foot .dot.err { background: var(--red); box-shadow: 0 0 8px var(--red); }
+input[type="radio"] { accent-color: var(--gold); width: 16px; height: 16px; }
+
+.main { min-width: 0; padding: 26px clamp(16px, 3vw, 36px) 90px; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.page-head p { color: var(--muted); margin-top: 4px; }
+.eyebrow { font-family: var(--mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; display: block; }
+
+/* ---------- Paneles ---------- */
+.card { background: linear-gradient(180deg, var(--panel), var(--bg-2)); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; }
+.card + .card { margin-top: 14px; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.card-title { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: .76rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-2); }
+.grid-2 { display: grid; grid-template-columns: minmax(320px, 400px) 1fr; gap: 18px; align-items: start; }
+.grid-2 > * { min-width: 0; }
+.sticky { position: sticky; top: 18px; }
+
+/* ---------- Formularios ---------- */
+.field { display: grid; gap: 6px; margin-bottom: 13px; }
+.field > span, .label { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+input[type="text"], input[type="password"], input[type="number"], input[type="date"], input[type="url"], select, textarea {
+  width: 100%; padding: 10px 12px; border-radius: 11px; border: 1px solid var(--line-2); background: var(--field);
+  color: var(--text); font-family: inherit; font-size: .94rem; transition: border-color .15s;
+}
+textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+textarea.code { font-family: var(--mono); font-size: .8rem; line-height: 1.55; color: #cfd6e6; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: rgba(245, 165, 36, .7); box-shadow: 0 0 0 3px rgba(245, 165, 36, .15); }
+select option { background: var(--panel); }
+input[type="range"] { width: 100%; accent-color: var(--gold); }
+input[type="checkbox"] { accent-color: var(--gold); width: 16px; height: 16px; }
+.check { display: inline-flex; align-items: center; gap: 7px; font-size: .9rem; cursor: pointer; user-select: none; }
+.checks { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+
+.seg { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.seg button {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 11px; border: 1px solid var(--line-2);
+  background: var(--field); color: var(--muted); font-family: inherit; font-weight: 600; font-size: .86rem; cursor: pointer; text-align: left;
+}
+.seg button.on { border-color: var(--gold); color: var(--text); background: rgba(245, 165, 36, .1); }
+.seg button span { font-size: 1.1rem; }
+
+/* ---------- Botones ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 15px; border-radius: 11px;
+  border: 1px solid transparent; font-family: inherit; font-weight: 700; font-size: .9rem; cursor: pointer; text-decoration: none;
+  transition: transform .12s, filter .15s, background .15s; white-space: nowrap; color: var(--text);
+}
+.btn:hover { filter: brightness(1.08); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-gold { background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: #1a1205; box-shadow: 0 8px 22px -10px rgba(245, 165, 36, .8); }
+.btn-violet { background: linear-gradient(180deg, #a78bfa, var(--violet)); color: #fff; }
+.btn-green { background: #1f9d6b; color: #fff; }
+.btn-red { background: rgba(248, 113, 113, .14); color: var(--red); border-color: rgba(248, 113, 113, .35); }
+.btn-ghost { background: rgba(255, 255, 255, .04); border-color: var(--line-2); }
+.btn-ghost:hover { background: rgba(255, 255, 255, .08); }
+.btn-sm { padding: 7px 11px; font-size: .82rem; border-radius: 9px; }
+.btn-block { width: 100%; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-stack { display: grid; gap: 8px; }
+.btn .spin { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Chips ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; padding: 4px 10px; border-radius: 999px; font-size: .76rem; font-weight: 700; border: 1px solid var(--line-2); background: rgba(255, 255, 255, .04); color: var(--muted); }
+.chip-gold { color: var(--gold-2); border-color: rgba(245, 165, 36, .4); background: rgba(245, 165, 36, .1); }
+.chip-violet { color: var(--violet-2); border-color: rgba(139, 92, 246, .45); background: rgba(139, 92, 246, .12); }
+.chip-pink { color: #f9a8d4; border-color: rgba(236, 72, 153, .4); background: rgba(236, 72, 153, .1); }
+.chip-green { color: #6ee7b7; border-color: rgba(52, 211, 153, .4); background: rgba(52, 211, 153, .1); }
+.chip-red { color: var(--red); border-color: rgba(248, 113, 113, .4); background: rgba(248, 113, 113, .1); }
+
+/* ---------- Plan ---------- */
+.plan { padding: 12px 14px; border-radius: 12px; background: rgba(245, 165, 36, .07); border: 1px solid rgba(245, 165, 36, .3); font-size: .86rem; color: var(--gold-2); margin-bottom: 14px; }
+.plan b { color: var(--text); }
+
+/* ---------- Resultado ---------- */
+.hero-result { border-color: rgba(245, 165, 36, .35); background: linear-gradient(180deg, rgba(245, 165, 36, .07), var(--bg-2) 60%); }
+.title-input { font-size: 1.45rem !important; font-weight: 800; background: transparent !important; border-color: transparent !important; padding: 4px 0 !important; letter-spacing: -.02em; }
+.title-input:focus { border-color: var(--line-2) !important; padding: 4px 8px !important; }
+.hook { color: var(--muted); margin: 4px 0 14px; }
+.scene { border-left: 3px solid var(--gold); }
+.scene-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.scene-n { font-weight: 800; color: var(--gold-2); }
+.copy-wrap { position: relative; }
+.copy-wrap .btn { position: absolute; top: 6px; right: 6px; }
+.copy-wrap textarea { padding-right: 86px; }
+details.more { margin-top: 8px; }
+details.more summary { cursor: pointer; color: var(--muted); font-size: .84rem; font-weight: 600; list-style: none; }
+details.more summary::before { content: "▸ "; }
+details.more[open] summary::before { content: "▾ "; }
+details.more > div { margin-top: 8px; }
+.empty { text-align: center; padding: 46px 24px; }
+.empty .big { font-size: 2.4rem; margin-bottom: 8px; }
+.empty p { color: var(--muted); max-width: 520px; margin: 6px auto 0; }
+.modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 22px; text-align: left; }
+.mode { padding: 14px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, .02); }
+.mode b { display: block; margin-bottom: 4px; }
+.mode p { font-size: .84rem; margin: 0; }
+
+/* ---------- Panel / Kanban ---------- */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+.stat { padding: 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--panel); }
+.stat b { display: block; font-size: 1.7rem; font-weight: 800; letter-spacing: -.03em; }
+.stat span { color: var(--muted); font-size: .84rem; }
+.quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 22px; }
+.quick button {
+  display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; cursor: pointer; text-align: left;
+  border: 1px solid var(--line-2); background: linear-gradient(180deg, var(--panel-2), var(--panel)); color: var(--text); font-family: inherit;
+  transition: border-color .15s, transform .15s;
+}
+.quick button:hover { border-color: var(--gold); transform: translateY(-2px); }
+.quick .qi { width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center; font-size: 1.3rem; background: rgba(245, 165, 36, .12); }
+.quick b { display: block; font-size: .92rem; }
+.quick small { color: var(--muted); font-size: .78rem; }
+.kanban { display: grid; grid-template-columns: repeat(5, minmax(200px, 1fr)); gap: 12px; overflow-x: auto; padding-bottom: 6px; }
+.col { background: rgba(255, 255, 255, .02); border: 1px solid var(--line); border-radius: 14px; padding: 10px; min-height: 160px; }
+.col-head { display: flex; justify-content: space-between; align-items: center; padding: 4px 6px 10px; font-weight: 700; font-size: .86rem; }
+.col-head span { font-family: var(--mono); color: var(--muted); font-size: .78rem; }
+.pcard { display: block; padding: 11px; border-radius: 11px; border: 1px solid var(--line); background: var(--panel); margin-bottom: 8px; text-decoration: none; transition: border-color .15s; }
+.pcard:hover { border-color: var(--line-2); }
+.pcard b { display: block; font-size: .88rem; margin: 4px 0; }
+.pcard .meta { display: flex; justify-content: space-between; align-items: center; gap: 6px; color: var(--muted); font-size: .76rem; }
+.pcard .mv { display: flex; gap: 4px; }
+.pcard .mv button { border: 1px solid var(--line-2); background: none; color: var(--muted); border-radius: 6px; cursor: pointer; padding: 0 6px; font-size: .8rem; }
+.dotc { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+.list { display: grid; gap: 8px; }
+.list-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 11px; border: 1px solid var(--line); background: rgba(255, 255, 255, .02); }
+
+/* ---------- Marcas ---------- */
+.brands { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.bcard { cursor: pointer; transition: border-color .15s; position: relative; overflow: hidden; }
+.bcard:hover { border-color: var(--line-2); }
+.bcard::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--c, var(--gold)); }
+.bcard p { color: var(--muted); font-size: .86rem; margin: 6px 0 10px; }
+
+/* ---------- Voces ---------- */
+.voices { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 7px; max-height: 260px; overflow: auto; padding-right: 4px; }
+.voice { padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--field); cursor: pointer; text-align: left; color: var(--text); font-family: inherit; }
+.voice b { display: block; font-size: .84rem; }
+.voice small { color: var(--muted); font-size: .74rem; }
+.voice.on { border-color: var(--violet); background: rgba(139, 92, 246, .15); }
+.take { display: grid; gap: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, .02); }
+.take.on { border-color: rgba(52, 211, 153, .5); background: rgba(52, 211, 153, .05); }
+.take audio { width: 100%; height: 38px; }
+
+/* ---------- Ensamblador ---------- */
+.drop { border: 1.5px dashed var(--line-2); border-radius: 13px; padding: 18px; text-align: center; color: var(--muted); cursor: pointer; transition: border-color .15s, background .15s; }
+.drop:hover, .drop.over { border-color: var(--gold); background: rgba(245, 165, 36, .05); color: var(--text); }
+.drop input { display: none; }
+.clips { display: grid; gap: 6px; margin-top: 10px; max-height: 280px; overflow: auto; }
+.clip { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255, 255, 255, .02); }
+.clip .th { width: 34px; height: 48px; border-radius: 6px; background: #000 center/cover; flex-shrink: 0; overflow: hidden; }
+.clip .th video, .clip .th img { width: 100%; height: 100%; object-fit: cover; }
+.clip .nm { flex: 1; min-width: 0; font-size: .82rem; }
+.clip .nm b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.clip .nm small { color: var(--muted); font-family: var(--mono); }
+.clip button { border: 1px solid var(--line-2); background: none; color: var(--muted); border-radius: 7px; cursor: pointer; width: 28px; height: 28px; }
+.clip button:hover { color: var(--text); }
+.stage { display: grid; place-items: center; padding: 18px; border-radius: var(--r); background: #04060c; border: 1px solid var(--line); }
+.stage canvas { max-width: 100%; max-height: 66vh; border-radius: 14px; box-shadow: 0 20px 60px -20px rgba(0, 0, 0, .8), 0 0 0 1px var(--line-2); background: #05070e; }
+.timebar { height: 6px; border-radius: 99px; background: rgba(255, 255, 255, .08); overflow: hidden; margin: 14px 0 8px; }
+.timebar div { height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--pink)); }
+.vol { display: grid; grid-template-columns: 70px 1fr 40px; align-items: center; gap: 8px; font-size: .84rem; color: var(--muted); }
+
+/* ---------- Modal y avisos ---------- */
+.modal { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; background: rgba(3, 5, 12, .72); backdrop-filter: blur(6px); }
+.modal .card { width: min(640px, 100%); max-height: 90vh; overflow: auto; }
+.toasts { position: fixed; right: 16px; bottom: 16px; z-index: 200; display: grid; gap: 8px; }
+.toast { padding: 11px 14px; border-radius: 11px; background: var(--panel-2); border: 1px solid var(--line-2); box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .7); font-size: .9rem; max-width: 360px; animation: up .2s ease; }
+.toast.ok { border-color: rgba(52, 211, 153, .5); }
+.toast.error { border-color: rgba(248, 113, 113, .6); }
+@keyframes up { from { transform: translateY(8px); opacity: 0; } }
+.note { padding: 11px 13px; border-radius: 11px; font-size: .85rem; background: rgba(96, 165, 250, .08); border: 1px solid rgba(96, 165, 250, .3); color: #bfdbfe; }
+.note.warn { background: rgba(245, 165, 36, .08); border-color: rgba(245, 165, 36, .35); color: var(--gold-2); }
+hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1180px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .sticky { position: static; }
+  .kanban { grid-template-columns: repeat(5, 230px); }
+}
+@media (max-width: 860px) {
+  .app { grid-template-columns: 1fr; }
+  .side {
+    position: fixed; top: auto; bottom: 0; left: 0; right: 0; height: auto; z-index: 50; flex-direction: row; justify-content: space-around;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); border-right: 0; border-top: 1px solid var(--line); background: rgba(9, 13, 26, .96); backdrop-filter: blur(12px);
+  }
+  .side .brand, .side-foot { display: none; }
+  .nav-item { flex-direction: column; gap: 3px; padding: 6px 2px; font-size: .6rem; flex: 1; text-align: center; min-width: 0; }
+  .nav-item svg { width: 18px; height: 18px; }
+  .nav-item.active { box-shadow: none; background: rgba(245, 165, 36, .12); }
+  .stats, .quick { grid-template-columns: repeat(2, 1fr); }
+  .modes { grid-template-columns: 1fr; }
+  .main { padding-top: 18px; }
+}
+@media (max-width: 480px) {
+  .row, .row-3 { grid-template-columns: 1fr; }
+  .seg { grid-template-columns: 1fr 1fr; }
+  .card { padding: 14px; }
+}
+
+</style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <a class="brand" href="#/panel">
+        <span class="brand-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v4"/></svg></span>
+        <span><b>Vocalis Studio</b><small>ESTUDIO PRO</small></span>
+      </a>
+      <a class="nav-item" href="#/panel" data-nav="panel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Panel
+      </a>
+      <a class="nav-item" href="#/estudio" data-nav="estudio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8H20l-4.9 3.6 1.9 5.8L12 14.6l-5 3.6 1.9-5.8L4 8.8h6.1z"/></svg>
+        Guiones
+      </a>
+      <a class="nav-item" href="#/auto" data-nav="auto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Automático
+      </a>
+      <a class="nav-item" href="#/voz" data-nav="voz">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v4"/></svg>
+        Voz
+      </a>
+      <a class="nav-item" href="#/ensamblador" data-nav="ensamblador">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><polygon points="10 9 15 12 10 15 10 9"/></svg>
+        Ensamblar
+      </a>
+      <a class="nav-item" href="#/marcas" data-nav="marcas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+        Empresas
+      </a>
+      <a class="nav-item" href="#/ajustes" data-nav="ajustes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        Ajustes
+      </a>
+      <div class="side-foot" id="apiStatus"></div>
+    </aside>
+    <main class="main" id="view"></main>
+  </div>
+  <div class="toasts" id="toasts"></div>
+
+  <script>
+/* Datos del estudio.
+   - En Netlify (con contraseña configurada): todo se guarda en la nube de tu sitio y se sincroniza entre equipos.
+   - Abierto como archivo local: se guarda solo en este navegador.
+   Copia local en localStorage/IndexedDB para que abra rápido y aguante cortes de internet. */
+window.VS = window.VS || {};
+(function (VS) {
+  "use strict";
+  const KEY = "vocalis.studio.v2";
+  const KEY_SYNC = "vocalis.studio.v2.sync"; // momento de la última sincronización
+
+  const defaults = () => ({
+    settings: {
+      appName: "Vocalis Studio",
+      apiKey: "",
+      modelText: "gemini-3.8-flash",
+      modelTTS: "gemini-3.8-flash-tts",
+      wps: 2.5,
+      clip: 8,
+      promptLang: "en",
+      actualizado: 0,
+    },
+    brands: [],
+    projects: [],
+  });
+
+  let state;
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem("vocalis.studio.v1") || "null");
+    state = Object.assign(defaults(), raw || {});
+    state.settings = Object.assign(defaults().settings, (raw && raw.settings) || {});
+  } catch (e) {
+    state = defaults();
+  }
+
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  /* ---------- Nube ---------- */
+  const cloud = { on: false, estado: "local", pendientes: 0, error: "" };
+  const enviado = { brands: new Map(), projects: new Map(), settings: new Map() }; // último JSON enviado por id
+  let tSync = null;
+
+  function avisar() {
+    VS.alSincronizar && VS.alSincronizar(cloud);
+  }
+
+  async function api(path, opts) {
+    const r = await fetch(path, Object.assign({ credentials: "same-origin", cache: "no-store" }, opts || {}));
+    if (r.status === 401 && !String(path).startsWith("/api/entrar")) {
+      cloud.estado = "sesion";
+      avisar();
+      setTimeout(() => location.reload(), 1200);
+      throw new Error("Tu sesión venció. Vuelve a entrar.");
+    }
+    if (!r.ok) {
+      let msg = "Error " + r.status;
+      try { msg = (await r.json()).error || msg; } catch (e) { /* */ }
+      throw new Error(msg);
+    }
+    return r;
+  }
+
+  async function bajarTodo(tipo) {
+    const items = [];
+    let offset = 0;
+    while (offset !== null) {
+      const d = await (await api(`/api/data?type=${tipo}&offset=${offset}`)).json();
+      items.push(...d.items);
+      offset = d.next;
+    }
+    return items;
+  }
+
+  const sello = (x) => Number(x && (x.actualizado || x.creado)) || 0;
+
+  // Une lo de la nube con la copia local: gana lo más reciente. Lo que solo existe local y es
+  // anterior a la última sincronización se considera borrado en otro equipo.
+  function unir(local, remoto, ultima) {
+    const porId = new Map(remoto.map((x) => [x.id, x]));
+    const subir = [];
+    local.forEach((x) => {
+      const r = porId.get(x.id);
+      if (!r) {
+        if (sello(x) > ultima) { porId.set(x.id, x); subir.push(x); }
+      } else if (sello(x) > sello(r)) {
+        porId.set(x.id, x);
+        subir.push(x);
+      }
+    });
+    return { lista: Array.from(porId.values()), subir };
+  }
+
+  async function iniciar() {
+    let ping = null;
+    try {
+      if (location.protocol.startsWith("http")) {
+        const r = await fetch("/api/ping", { credentials: "same-origin", cache: "no-store" });
+        let d = null;
+        try { d = await r.json(); } catch (e) { /* no es la API */ }
+        if (r.ok && d) ping = d;
+        else if (r.status === 401 && d && d.login) return { acceso: "login" };
+        else if (r.status === 503 && d && d.config) return { acceso: "config" };
+      }
+    } catch (e) { /* sin nube */ }
+    if (!ping || !ping.cloud) {
+      cloud.on = false;
+      cloud.estado = "local";
+      sembrar();
+      avisar();
+      return;
+    }
+    cloud.on = true;
+    cloud.estado = "cargando";
+    avisar();
+    try {
+      const ultima = Number(localStorage.getItem(KEY_SYNC)) || 0;
+      const [brands, projects, sets] = await Promise.all([bajarTodo("brands"), bajarTodo("projects"), bajarTodo("settings")]);
+      const b = unir(state.brands, brands, ultima);
+      const p = unir(state.projects, projects, ultima);
+      state.brands = b.lista;
+      state.projects = p.lista.sort((x, y) => sello(y) - sello(x));
+      const rs = sets[0];
+      if (rs && sello(rs) >= sello(state.settings)) state.settings = Object.assign(defaults().settings, rs);
+      // marcar como ya enviado lo que vino de la nube
+      brands.forEach((x) => enviado.brands.set(x.id, JSON.stringify(x)));
+      projects.forEach((x) => enviado.projects.set(x.id, JSON.stringify(x)));
+      if (rs) enviado.settings.set("main", JSON.stringify(rs));
+      sembrar();
+      guardarLocal();
+      localStorage.setItem(KEY_SYNC, String(Date.now()));
+      cloud.estado = "ok";
+      avisar();
+      if (b.subir.length || p.subir.length || !rs) programarSync(10);
+    } catch (e) {
+      cloud.estado = "offline";
+      cloud.error = e.message;
+      avisar();
+    }
+  }
+
+  function programarSync(ms) {
+    if (!cloud.on) return;
+    clearTimeout(tSync);
+    tSync = setTimeout(sincronizar, ms == null ? 700 : ms);
+  }
+
+  async function sincronizar() {
+    if (!cloud.on) return;
+    const tareas = [];
+    const revisar = (tipo, lista) => {
+      lista.forEach((x) => {
+        const s = JSON.stringify(x);
+        if (enviado[tipo].get(x.id) !== s) tareas.push({ tipo, id: x.id, s });
+      });
+    };
+    revisar("brands", state.brands);
+    revisar("projects", state.projects);
+    const ss = Object.assign({}, state.settings, { id: "main" });
+    const sj = JSON.stringify(ss);
+    if (enviado.settings.get("main") !== sj) tareas.push({ tipo: "settings", id: "main", s: sj });
+    if (!tareas.length) {
+      if (cloud.estado !== "ok") { cloud.estado = "ok"; avisar(); }
+      return;
+    }
+    cloud.estado = "guardando";
+    cloud.pendientes = tareas.length;
+    avisar();
+    let fallo = null;
+    for (const t of tareas) {
+      try {
+        await api(`/api/item/${t.tipo}/${encodeURIComponent(t.id)}`, { method: "PUT", headers: { "content-type": "application/json" }, body: t.s });
+        enviado[t.tipo].set(t.id, t.s);
+        cloud.pendientes--;
+      } catch (e) {
+        fallo = e;
+        break;
+      }
+    }
+    if (fallo) {
+      cloud.estado = "offline";
+      cloud.error = fallo.message;
+      avisar();
+      programarSync(15000); // reintenta
+    } else {
+      localStorage.setItem(KEY_SYNC, String(Date.now()));
+      cloud.estado = "ok";
+      avisar();
+    }
+  }
+
+  async function borrarRemoto(tipo, id) {
+    enviado[tipo].delete(id);
+    if (!cloud.on) return;
+    try {
+      await api(`/api/item/${tipo}/${encodeURIComponent(id)}`, { method: "DELETE" });
+    } catch (e) {
+      VS.toast && VS.toast("No se pudo borrar en la nube: " + e.message, "error");
+    }
+  }
+
+  function guardarLocal() {
+    try {
+      localStorage.setItem("vocalis.nombre", state.settings.appName || "");
+      localStorage.setItem(KEY, JSON.stringify(state));
+      return true;
+    } catch (e) {
+      // con nube activa, la copia local es opcional
+      if (!cloud.on) VS.toast && VS.toast("El almacenamiento de este navegador está lleno. Exporta un respaldo o publica el estudio en Netlify para guardar sin límite.", "error");
+      return false;
+    }
+  }
+
+  function save() {
+    guardarLocal();
+    programarSync();
+  }
+
+  function sembrar() {
+    if (state.brands.length || state.projects.length) return;
+    state.brands.push({
+      id: uid(), creado: Date.now(), actualizado: Date.now(),
+      nombre: "Empresa de ejemplo",
+      nicho: "Café y desayunos",
+      productos: "Cafés especiales, desayunos completos, picadas y comidas rápidas",
+      oferta: "Café de origen colombiano, ambiente familiar, domicilios",
+      contacto: "Pedidos por WhatsApp",
+      publico: "Familias y trabajadores del barrio",
+      idioma: "español",
+      estetica: "Warm cozy Colombian café, morning sunlight, steam rising from coffee cups, rustic wood, golden and brown palette, appetizing close-ups",
+      tono: "Cálido, cercano y alegre",
+      voz: { voice: "Sulafat", estilo: "Warm, friendly, smiling delivery", arquetipo: "Anfitriona cálida" },
+      cta: "Pide ya por WhatsApp",
+      hashtags: "#cafe #desayunos #domicilios",
+      color: "#f5a524",
+    });
+  }
+
+  const store = {
+    get state() { return state; },
+    cloud,
+    iniciar,
+    save,
+    sincronizar,
+    uid,
+    brand: (id) => state.brands.find((b) => b.id === id),
+    project: (id) => state.projects.find((p) => p.id === id),
+    upsertBrand(b) {
+      if (!b.id) { b.id = uid(); b.creado = Date.now(); }
+      b.actualizado = Date.now();
+      const i = state.brands.findIndex((x) => x.id === b.id);
+      i >= 0 ? (state.brands[i] = b) : state.brands.push(b);
+      save();
+      return b;
+    },
+    deleteBrand(id) {
+      state.brands = state.brands.filter((b) => b.id !== id);
+      state.projects.forEach((p) => { if (p.marcaId === id) { p.marcaId = ""; p.actualizado = Date.now(); } });
+      save();
+      borrarRemoto("brands", id);
+    },
+    upsertProject(p) {
+      if (!p.id) { p.id = uid(); p.creado = Date.now(); }
+      p.actualizado = Date.now();
+      const i = state.projects.findIndex((x) => x.id === p.id);
+      i >= 0 ? (state.projects[i] = p) : state.projects.unshift(p);
+      save();
+      return p;
+    },
+    tocar(p) { p.actualizado = Date.now(); save(); },
+    deleteProject(id) {
+      state.projects = state.projects.filter((p) => p.id !== id);
+      save();
+      borrarRemoto("projects", id);
+      VS.media.delPrefix(id + "__");
+    },
+    guardarAjustes() {
+      state.settings.actualizado = Date.now();
+      save();
+    },
+    exportJSON() {
+      const copy = JSON.parse(JSON.stringify(state));
+      copy.settings.apiKey = ""; // la llave nunca sale en el respaldo
+      return copy;
+    },
+    importJSON(obj) {
+      if (!obj || !Array.isArray(obj.projects) || !Array.isArray(obj.brands)) throw new Error("El archivo no es un respaldo válido.");
+      const key = state.settings.apiKey;
+      const ahora = Date.now();
+      const viejos = { b: state.brands.map((x) => x.id), p: state.projects.map((x) => x.id) };
+      state.brands = obj.brands.map((x) => Object.assign(x, { actualizado: ahora }));
+      state.projects = obj.projects.map((x) => Object.assign(x, { actualizado: ahora }));
+      state.settings = Object.assign(defaults().settings, obj.settings || {}, { apiKey: key, actualizado: ahora });
+      viejos.b.filter((id) => !store.brand(id)).forEach((id) => borrarRemoto("brands", id));
+      viejos.p.filter((id) => !store.project(id)).forEach((id) => borrarRemoto("projects", id));
+      save();
+    },
+    reset() {
+      const key = state.settings.apiKey, nombre = state.settings.appName;
+      state.brands.forEach((b) => borrarRemoto("brands", b.id));
+      state.projects.forEach((p) => borrarRemoto("projects", p.id));
+      state = defaults();
+      Object.assign(state.settings, { apiKey: key, appName: nombre, actualizado: Date.now() });
+      save();
+    },
+  };
+  VS.store = store;
+
+  /* ---------- Audios: IndexedDB local + nube ---------- */
+  const DB = "vocalis-media", OS = "blobs";
+  const MAX_NUBE = 4.5 * 1024 * 1024; // límite por archivo en la nube
+  let dbp = null;
+  function db() {
+    if (!dbp) {
+      dbp = new Promise((res, rej) => {
+        const r = indexedDB.open(DB, 1);
+        r.onupgradeneeded = () => r.result.createObjectStore(OS);
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      });
+    }
+    return dbp;
+  }
+  async function tx(mode, fn) {
+    const d = await db();
+    return new Promise((res, rej) => {
+      const t = d.transaction(OS, mode);
+      const req = fn(t.objectStore(OS));
+      t.oncomplete = () => res(req && "result" in req ? req.result : undefined);
+      t.onerror = () => rej(t.error);
+    });
+  }
+  const local = {
+    put: (k, v) => tx("readwrite", (os) => os.put(v, k)),
+    get: (k) => tx("readonly", (os) => os.get(k)),
+    del: (k) => tx("readwrite", (os) => os.delete(k)),
+    keys: () => tx("readonly", (os) => os.getAllKeys()),
+  };
+
+  VS.media = {
+    // val = { blob, voice, estilo, fecha, origen }
+    async put(key, val) {
+      await local.put(key, val);
+      if (!cloud.on) return { nube: false };
+      if (val.blob.size > MAX_NUBE) return { nube: false, motivo: "grande" };
+      const meta = { voice: val.voice || "", estilo: val.estilo || "", fecha: String(val.fecha || Date.now()), origen: val.origen || "" };
+      await api(`/api/media/${encodeURIComponent(key)}`, {
+        method: "PUT",
+        headers: { "content-type": val.blob.type || "audio/wav", "x-meta": JSON.stringify(meta).replace(/[^\x20-\x7e]/g, "") },
+        body: val.blob,
+      });
+      return { nube: true };
+    },
+    async get(key) {
+      let v = null;
+      try { v = await local.get(key); } catch (e) { /* */ }
+      if (v || !cloud.on) return v;
+      try {
+        const r = await api(`/api/media/${encodeURIComponent(key)}`);
+        const meta = JSON.parse(r.headers.get("x-meta") || "{}");
+        const blob = await r.blob();
+        v = { blob: new Blob([blob], { type: meta.type || blob.type || "audio/wav" }), voice: meta.voice, estilo: meta.estilo, fecha: Number(meta.fecha) || Date.now(), origen: meta.origen };
+        local.put(key, v).catch(() => {});
+      } catch (e) { v = null; }
+      return v;
+    },
+    async del(key) {
+      try { await local.del(key); } catch (e) { /* */ }
+      if (cloud.on) { try { await api(`/api/media/${encodeURIComponent(key)}`, { method: "DELETE" }); } catch (e) { /* */ } }
+    },
+    async keys(prefix) {
+      const set = new Set();
+      try { (await local.keys()).forEach((k) => String(k).startsWith(prefix) && set.add(String(k))); } catch (e) { /* */ }
+      if (cloud.on) {
+        try { (await (await api(`/api/media?prefix=${encodeURIComponent(prefix)}`)).json()).keys.forEach((k) => set.add(k)); } catch (e) { /* */ }
+      }
+      return Array.from(set);
+    },
+    async delPrefix(prefix) {
+      for (const k of await this.keys(prefix)) await this.del(k);
+    },
+  };
+})(window.VS);
+
+</script>
+  <script>
+/* Motor de guiones: prompt maestro para Gemini, lectura de respuestas,
+   borrador sin IA, exportaciones (ficha, prompts, SRT) y tiempos de subtítulos. */
+window.VS = window.VS || {};
+(function (VS) {
+  "use strict";
+
+  const TIPOS = {
+    short:  { label: "Reel / TikTok / Short", icono: "📱", duraciones: [15, 30, 45, 60, 90], formato: "9:16", video: true },
+    largo:  { label: "Video largo (YouTube)",  icono: "🎬", duraciones: [120, 180, 300, 480, 600], formato: "16:9", video: true },
+    cuna:   { label: "Cuña comercial / radio", icono: "📻", duraciones: [15, 20, 30, 45, 60], formato: "audio", video: false },
+    jingle: { label: "Jingle",                 icono: "🎵", duraciones: [15, 30, 60], formato: "audio", video: false },
+  };
+
+  const ATMOSFERAS = [
+    "Auto (la IA decide según el nicho)",
+    "Cinemático épico",
+    "Cálido y cercano",
+    "Lujo y elegancia",
+    "Energético y urbano",
+    "Místico y espiritual",
+    "Tropical / Pacífico colombiano",
+    "Minimalista y limpio",
+    "Documental realista",
+    "Animación 3D estilo Pixar",
+    "Nocturno y sensual",
+  ];
+
+  const ESTADOS = [
+    { id: "idea", label: "Idea" },
+    { id: "guion", label: "Guion" },
+    { id: "produccion", label: "Producción" },
+    { id: "listo", label: "Listo" },
+    { id: "publicado", label: "Publicado" },
+  ];
+
+  const plataformasVideo = ["TikTok", "Reels", "Shorts", "Facebook", "YouTube"];
+
+  /* ---------- Plan de producción (cuántos clips y palabras) ---------- */
+  function plan(p) {
+    const s = VS.store.state.settings;
+    const wps = Number(s.wps) || 2.5;
+    const T = TIPOS[p.tipo] || TIPOS.short;
+    const dur = Number(p.duracion) || T.duraciones[1];
+    if (!T.video) {
+      return { escenas: 0, clips: [], palabras: Math.round(dur * wps * (p.tipo === "jingle" ? 0.7 : 0.92)), dur, wps };
+    }
+    const clip = Number(p.clip) || s.clip || 8;
+    const n = Math.max(1, Math.ceil(dur / clip));
+    const clips = Array.from({ length: n }, (_, i) => (i < n - 1 ? clip : Math.max(4, dur - clip * (n - 1))));
+    const real = clips.reduce((a, b) => a + b, 0);
+    return {
+      escenas: n,
+      clips,
+      dur: real,
+      wps,
+      palabras: Math.round(real * wps * 0.92),
+      porEscena: clips.map((c) => Math.round(c * wps * 0.92)),
+    };
+  }
+
+  function contexto(p, b) {
+    b = b || {};
+    const v = b.voz || {};
+    return [
+      `Empresa / página: ${b.nombre || "Sin marca"}`,
+      `Nicho: ${b.nicho || "general"}`,
+      b.productos ? `Productos o servicios: ${b.productos}` : "",
+      b.oferta ? `Diferenciales y ofertas: ${b.oferta}` : "",
+      b.contacto ? `Contacto / canal de pedidos: ${b.contacto}` : "",
+      `Público: ${b.publico || "general"}`,
+      `Idioma de la locución y textos: ${p.idioma || b.idioma || "español"}`,
+      `Estética visual de la marca: ${b.estetica || "libre, coherente con el nicho"}`,
+      `Tono: ${b.tono || "cercano y claro"}`,
+      `Arquetipo de voz: ${v.arquetipo || "narrador"} — ${v.estilo || ""}`,
+      `Llamado a la acción preferido: ${p.cta || b.cta || "seguir la cuenta"}`,
+      `Hashtags base: ${b.hashtags || ""}`,
+      `Atmósfera pedida: ${p.atmosfera || ATMOSFERAS[0]}`,
+      `Tema o enfoque: ${p.tema || "elige el tema con más potencial viral para el nicho"}`,
+    ].filter(Boolean).join("\n");
+  }
+
+  /* ---------- Temas para producción automática ---------- */
+  function promptTemas(b, cantidades, usados) {
+    const pide = Object.entries(cantidades).filter(([, n]) => n > 0);
+    const guia = {
+      short: "videos cortos virales (ganchos fuertes, tips, curiosidades, antes/después, promociones)",
+      largo: "videos largos de YouTube (temas profundos, guías, historias)",
+      cuna: "cuñas de radio (promociones, lanzamientos, días especiales, beneficios concretos)",
+      jingle: "jingles (identidad de marca, temporadas, campañas)",
+    };
+    return `Eres estratega de contenido. Propón temas DISTINTOS entre sí y concretos para esta empresa.
+
+${contexto({ tema: "" }, b)}
+
+Cantidades:
+${pide.map(([t, n]) => `- ${t}: ${n} temas para ${guia[t]}`).join("\n")}
+
+No repitas ni te parezcas a estos temas ya usados:
+${(usados || []).slice(0, 40).map((u) => "- " + u).join("\n") || "- (ninguno)"}
+
+Responde SOLO con JSON válido, sin texto adicional, con esta forma exacta:
+{ ${pide.map(([t]) => `"${t}": ["tema 1", "tema 2"]`).join(", ")} }`;
+  }
+
+  function parseTemas(text) {
+    let t = String(text || "").trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+    const a = t.indexOf("{"), z = t.lastIndexOf("}");
+    if (a < 0) throw new Error("Gemini no devolvió la lista de temas.");
+    const o = JSON.parse(t.slice(a, z + 1));
+    Object.keys(o).forEach((k) => { if (!Array.isArray(o[k])) o[k] = []; });
+    return o;
+  }
+
+  /* ---------- Prompt maestro ---------- */
+  function promptMaestro(p, b) {
+    const s = VS.store.state.settings;
+    const pl = plan(p);
+    const T = TIPOS[p.tipo] || TIPOS.short;
+    const lang = s.promptLang === "es" ? "español" : "inglés";
+    const formato = p.formato || T.formato;
+    const reglasComunes = `
+REGLAS GENERALES
+- Responde SOLO con JSON válido, sin texto antes ni después, sin bloques de código.
+- Escribe todo el texto hablado en ${p.idioma || (b && b.idioma) || "español"} natural, para ser leído en voz alta.
+- El texto hablado no lleva acotaciones, emojis, hashtags ni indicaciones entre paréntesis.
+- El primer segundo debe enganchar: pregunta, promesa o afirmación sorprendente.
+- Cierra con el llamado a la acción.`;
+
+    const kit = `"kit": {
+    "titulo": "título con alto CTR, máximo 70 caracteres",
+    "descripcion": "descripción para la publicación, 2 a 4 líneas, con el CTA",
+    "hashtags": ["#hashtag", "... entre 6 y 12"],
+    "comentario_fijado": "comentario para fijar que invite a responder"
+  }`;
+
+    if (T.video) {
+      const audioVeo = p.audioVeo === "dialogo"
+        ? `El personaje en cámara DICE la línea de locución de la escena. Termina cada prompt_veo con: The character says in ${p.idioma || "Spanish"}: "<locucion exacta>". No subtitles, no on-screen text.`
+        : `La voz se agrega aparte. Termina cada prompt_veo con: Audio: ambient sound effects only, no dialogue, no music, no subtitles, no on-screen text.`;
+      return `Eres director creativo y guionista experto en ${T.label} virales y en escribir prompts para Google Veo 3 (Flow) y Gemini.
+Crea la producción completa de un video de ${pl.dur} segundos en formato ${formato}.
+
+CONTEXTO
+${contexto(p, b)}
+
+PLAN DE PRODUCCIÓN (obligatorio)
+- Exactamente ${pl.escenas} escenas. Duración de cada escena en segundos, en orden: ${pl.clips.join(", ")}.
+- Palabras máximas de locución por escena, en orden: ${pl.porEscena.join(", ")} (ritmo de ${pl.wps} palabras por segundo).
+- Total de locución: unas ${pl.palabras} palabras.
+${reglasComunes}
+
+REGLAS PARA LOS PROMPTS DE VIDEO
+- prompt_veo e prompt_imagen en ${lang}, detallados, de 60 a 110 palabras.
+- Define primero un "ancla_visual": descripción fija del personaje principal, vestuario, paleta y estilo. Repite el ancla TEXTUALMENTE dentro de cada prompt_veo para mantener coherencia entre clips.
+- Estructura de cada prompt_veo: tipo de plano y movimiento de cámara; sujeto y acción concreta de ${pl.clips[0]} segundos; escenario; luz y paleta; estilo cinematográfico; relación de aspecto ${formato === "9:16" ? "vertical 9:16" : formato}.
+- ${audioVeo}
+- Evita marcas registradas, personas famosas y texto dentro de la imagen.
+
+FORMATO JSON EXACTO
+{
+  "titulo": "título interno del video",
+  "gancho": "frase del primer segundo",
+  "ancla_visual": "descripción fija del personaje/estética",
+  "escenas": [
+    {
+      "n": 1,
+      "duracion": ${pl.clips[0]},
+      "locucion": "texto exacto que se narra en esta escena",
+      "texto_pantalla": "2 a 5 palabras clave para subtítulo destacado",
+      "visual": "qué se ve, en español, una línea",
+      "prompt_veo": "prompt completo para Veo 3",
+      "prompt_imagen": "prompt para imagen fija o fotograma inicial"
+    }
+  ],
+  "cta": "llamado a la acción final",
+  "voz": { "estilo": "instrucción corta de interpretación para la voz, máximo 12 palabras, en inglés" },
+  ${kit}
+}`;
+    }
+
+    if (p.tipo === "jingle") {
+      return `Eres compositor publicitario experto en jingles pegajosos para radio y redes.
+Crea un jingle original de ${pl.dur} segundos.
+
+CONTEXTO
+${contexto(p, b)}
+${reglasComunes}
+- Rima clara, coro repetible de 1 o 2 líneas con el nombre de la marca.
+- Unas ${pl.palabras} palabras en total.
+- prompt_musica en inglés para un generador de música (Lyria, Flow, Suno): género, BPM, instrumentos, tipo de voz, ánimo; incluye la letra con etiquetas [Intro] [Verse] [Chorus] [Outro].
+
+FORMATO JSON EXACTO
+{
+  "titulo": "nombre del jingle",
+  "genero": "género musical",
+  "bpm": 100,
+  "tonalidad": "por ejemplo Do mayor",
+  "estructura": [
+    { "parte": "Intro | Verso | Coro | Puente | Outro", "duracion": 6, "letra": "letra de esta parte" }
+  ],
+  "prompt_musica": "prompt completo en inglés con la letra etiquetada",
+  "voz": { "estilo": "cómo se canta, máximo 12 palabras, en inglés" },
+  "cta": "frase final",
+  ${kit}
+}`;
+    }
+
+    // cuña
+    return `Eres creativo y locutor de radio experto en cuñas comerciales que venden.
+Crea una cuña de ${pl.dur} segundos.
+
+CONTEXTO
+${contexto(p, b)}
+${reglasComunes}
+- Unas ${pl.palabras} palabras habladas en total.
+- Puede haber uno o dos personajes (rol). Indica pausas solo con puntos suspensivos.
+- prompt_musica en inglés para generar la cama musical (género, BPM, instrumentos, ánimo, sin voz).
+
+FORMATO JSON EXACTO
+{
+  "titulo": "nombre de la cuña",
+  "gancho": "primera frase",
+  "lineas": [ { "rol": "Locutora", "texto": "lo que dice" } ],
+  "musica": "descripción de la cama musical en español",
+  "prompt_musica": "prompt en inglés para el generador de música",
+  "sfx": ["efecto de sonido y en qué momento"],
+  "voz": { "estilo": "interpretación, máximo 12 palabras, en inglés" },
+  "cta": "llamado a la acción",
+  ${kit}
+}`;
+  }
+
+  /* ---------- Leer la respuesta de Gemini ---------- */
+  function parse(text) {
+    if (!text) throw new Error("Respuesta vacía.");
+    let t = String(text).trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+    const a = t.indexOf("{"), z = t.lastIndexOf("}");
+    if (a < 0 || z < 0) throw new Error("No encontré JSON en la respuesta. Copia la respuesta completa de Gemini.");
+    t = t.slice(a, z + 1);
+    let obj;
+    try {
+      obj = JSON.parse(t);
+    } catch (e) {
+      // comillas tipográficas o comas finales
+      try {
+        obj = JSON.parse(t.replace(/[“”]/g, '"').replace(/,\s*([}\]])/g, "$1"));
+      } catch (e2) {
+        throw new Error("El JSON viene incompleto o con errores. Pide a Gemini que lo repita completo.");
+      }
+    }
+    return normalizar(obj);
+  }
+
+  function normalizar(o) {
+    o = o || {};
+    o.titulo = o.titulo || "Sin título";
+    o.escenas = Array.isArray(o.escenas) ? o.escenas.map((e, i) => ({
+      n: e.n || i + 1,
+      duracion: Number(e.duracion) || 8,
+      locucion: e.locucion || "",
+      texto_pantalla: e.texto_pantalla || "",
+      visual: e.visual || "",
+      prompt_veo: e.prompt_veo || "",
+      prompt_imagen: e.prompt_imagen || "",
+    })) : [];
+    o.estructura = Array.isArray(o.estructura) ? o.estructura : [];
+    o.lineas = Array.isArray(o.lineas) ? o.lineas : [];
+    o.sfx = Array.isArray(o.sfx) ? o.sfx : o.sfx ? [String(o.sfx)] : [];
+    o.voz = o.voz || {};
+    o.kit = o.kit || {};
+    if (typeof o.kit.hashtags === "string") o.kit.hashtags = o.kit.hashtags.split(/\s+/).filter(Boolean);
+    o.kit.hashtags = o.kit.hashtags || [];
+    return o;
+  }
+
+  /* ---------- Borrador rápido sin IA ---------- */
+  function borrador(p, b) {
+    b = b || {};
+    const pl = plan(p);
+    const tema = (p.tema || b.nicho || "tu meta").trim();
+    const cta = p.cta || b.cta || "Sígueme para más";
+    const est = b.estetica || "cinematic, warm natural light, rich colors, shallow depth of field";
+    const ancla = `${b.nombre ? b.nombre + " brand style: " : ""}${est}`;
+    const kit = {
+      titulo: `${tema.charAt(0).toUpperCase() + tema.slice(1)}: lo que nadie te dice`,
+      descripcion: `Guarda este video y compártelo con alguien que lo necesite.\n${cta}.`,
+      hashtags: (b.hashtags || "#viral #parati #reels").split(/\s+/).filter(Boolean),
+      comentario_fijado: `¿Qué opinas? Cuéntame en los comentarios 👇`,
+    };
+    if (p.tipo === "jingle") {
+      const marca = b.nombre || "Tu marca";
+      return normalizar({
+        titulo: `Jingle ${marca}`, genero: "Pop latino", bpm: 104, tonalidad: "Do mayor",
+        estructura: [
+          { parte: "Intro", duracion: 4, letra: "" },
+          { parte: "Verso", duracion: Math.round(pl.dur * 0.4), letra: `Cuando buscas ${tema},\nlo mejor está aquí,\ncon sabor y con cariño\nhecho para ti.` },
+          { parte: "Coro", duracion: Math.round(pl.dur * 0.4), letra: `${marca}, ${marca},\nla alegría de tu día.\n${marca}, ${marca}…` },
+          { parte: "Outro", duracion: 4, letra: cta },
+        ],
+        prompt_musica: `Upbeat Latin pop jingle, 104 BPM, bright acoustic guitar, congas, claps, warm bass, cheerful female lead vocal with group backing vocals on the chorus, catchy and radio friendly, ${pl.dur} seconds.\n[Verse]\nCuando buscas ${tema}, lo mejor está aquí...\n[Chorus]\n${marca}, ${marca}, la alegría de tu día`,
+        voz: { estilo: "Cheerful, bright, smiling delivery" }, cta, kit,
+      });
+    }
+    if (p.tipo === "cuna") {
+      return normalizar({
+        titulo: `Cuña ${b.nombre || ""}`.trim(), gancho: `¿Todavía sin ${tema}?`,
+        lineas: [
+          { rol: "Locutora", texto: `¿Todavía sin ${tema}? … Tranquilo, tenemos justo lo que necesitas.` },
+          { rol: "Locutora", texto: `${b.nombre || "Nosotros"} te lo pone fácil: calidad, buen precio y atención de verdad.` },
+          { rol: "Locutora", texto: `${cta}. ${b.nombre || ""}` },
+        ],
+        musica: "Cama musical alegre y moderna, volumen bajo debajo de la voz",
+        prompt_musica: "Bright modern commercial background music, 110 BPM, light percussion, plucked guitar, warm bass, no vocals, loopable",
+        sfx: ["Golpe de transición al inicio", "Ding suave antes del CTA"],
+        voz: { estilo: "Warm, confident, smiling radio delivery" }, cta, kit,
+      });
+    }
+    const roles = [
+      { loc: `¿Sabías que ${tema} puede cambiarlo todo?`, vis: "Plano de impacto que capta la atención", cam: "Fast push-in close-up" },
+      { loc: `La mayoría lo intenta y se rinde demasiado pronto.`, vis: "El problema: frustración, intento fallido", cam: "Slow handheld medium shot" },
+      { loc: `El secreto está en un detalle que casi nadie aplica.`, vis: "Revelación: luz que cambia, descubrimiento", cam: "Slow dolly forward" },
+      { loc: `Cuando lo aplicas, todo empieza a fluir a tu favor.`, vis: "Transformación y resultado", cam: "Smooth orbit shot" },
+      { loc: `Hazlo hoy, no mañana. Tu momento es ahora.`, vis: "Decisión y fuerza", cam: "Low-angle hero shot" },
+      { loc: `${cta}.`, vis: "Cierre con el mensaje final", cam: "Slow pull-back wide shot" },
+    ];
+    const escenas = pl.clips.map((d, i) => {
+      const r = i === pl.clips.length - 1 ? roles[roles.length - 1] : roles[i % (roles.length - 1)];
+      const audio = p.audioVeo === "dialogo"
+        ? `The character says in ${p.idioma || "Spanish"}: "${r.loc}". No subtitles, no on-screen text.`
+        : "Audio: ambient sound effects only, no dialogue, no music, no subtitles, no on-screen text.";
+      return {
+        n: i + 1, duracion: d, locucion: r.loc, texto_pantalla: r.loc.split(" ").slice(0, 4).join(" "), visual: r.vis,
+        prompt_veo: `${r.cam}, ${p.formato === "16:9" ? "16:9 widescreen" : "vertical 9:16"} format. ${ancla}. Scene about ${tema}: ${r.vis.toLowerCase()}. Cinematic lighting, high detail, 1080p, smooth natural motion lasting ${d} seconds. ${audio}`,
+        prompt_imagen: `${r.cam.replace(/shot|push-in|dolly forward|orbit/gi, "").trim()} still frame, ${p.formato === "16:9" ? "16:9" : "9:16 vertical"}. ${ancla}. ${r.vis}. Photorealistic, cinematic lighting, no text.`,
+      };
+    });
+    return normalizar({
+      titulo: kit.titulo, gancho: escenas[0].locucion, ancla_visual: ancla, escenas, cta,
+      voz: { estilo: (b.voz && b.voz.estilo) || "Confident, warm, clear with natural pauses" }, kit,
+    });
+  }
+
+  /* ---------- Texto hablado completo ---------- */
+  function textoHablado(r, tipo) {
+    if (!r) return "";
+    if (tipo === "jingle") return r.estructura.map((e) => e.letra).filter(Boolean).join("\n");
+    if (tipo === "cuna") return r.lineas.map((l) => l.texto).join("\n");
+    return r.escenas.map((e) => e.locucion).join("\n");
+  }
+
+  const contar = (t) => (String(t || "").trim().match(/\S+/g) || []).length;
+
+  /* ---------- Exportaciones ---------- */
+  function prompsVeoTexto(r) {
+    return r.escenas.map((e) => `ESCENA ${e.n} (${e.duracion}s)\n${e.prompt_veo}`).join("\n\n");
+  }
+
+  function kitTexto(r) {
+    const k = r.kit || {};
+    return [k.titulo, "", k.descripcion, "", (k.hashtags || []).join(" ")].join("\n").trim();
+  }
+
+  function ficha(p, b) {
+    const r = p.resultado;
+    const T = TIPOS[p.tipo];
+    const L = [];
+    L.push(`${r.titulo}`.toUpperCase(), `${T.label} · ${p.duracion}s · ${b ? b.nombre : "Sin marca"}`, "");
+    if (r.gancho) L.push(`GANCHO: ${r.gancho}`, "");
+    if (r.ancla_visual) L.push(`ANCLA VISUAL: ${r.ancla_visual}`, "");
+    if (r.escenas.length) {
+      r.escenas.forEach((e) => {
+        L.push(`— ESCENA ${e.n} · ${e.duracion}s`, `Locución: ${e.locucion}`, `En pantalla: ${e.texto_pantalla}`, `Visual: ${e.visual}`, `Prompt Veo: ${e.prompt_veo}`, `Prompt imagen: ${e.prompt_imagen}`, "");
+      });
+    }
+    if (r.lineas.length) { L.push("LOCUCIÓN"); r.lineas.forEach((l) => L.push(`${l.rol}: ${l.texto}`)); L.push(""); }
+    if (r.estructura.length) {
+      L.push(`JINGLE · ${r.genero || ""} · ${r.bpm || ""} BPM · ${r.tonalidad || ""}`);
+      r.estructura.forEach((e) => L.push(`[${e.parte}] ${e.letra || ""}`));
+      L.push("");
+    }
+    if (r.musica) L.push(`MÚSICA: ${r.musica}`);
+    if (r.prompt_musica) L.push(`PROMPT MÚSICA: ${r.prompt_musica}`);
+    if (r.sfx.length) L.push(`SFX: ${r.sfx.join(" · ")}`);
+    if (r.voz.estilo) L.push(`DIRECCIÓN DE VOZ: ${r.voz.estilo}`);
+    if (r.cta) L.push(`CTA: ${r.cta}`);
+    L.push("", "KIT DE REDES", kitTexto(r), "", `Comentario fijado: ${r.kit.comentario_fijado || ""}`);
+    return L.join("\n");
+  }
+
+  /* ---------- Subtítulos con tiempos ---------- */
+  // Reparte el texto en el tiempo total según la longitud de cada palabra (más pausa en puntuación).
+  function subtitulos(texto, total, porGrupo) {
+    porGrupo = porGrupo || 4;
+    const palabras = String(texto || "").replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+    if (!palabras.length || !total) return [];
+    const peso = palabras.map((w) => w.length + 2 + (/[.!?…]$/.test(w) ? 6 : /[,;:]$/.test(w) ? 3 : 0));
+    const suma = peso.reduce((a, b) => a + b, 0);
+    let t = 0;
+    const ws = palabras.map((w, i) => {
+      const d = (peso[i] / suma) * total;
+      const o = { w, start: t, end: t + d };
+      t += d;
+      return o;
+    });
+    const grupos = [];
+    let g = [];
+    ws.forEach((w, i) => {
+      g.push(w);
+      const fin = /[.!?…,;:]$/.test(w.w) && g.length >= 2;
+      if (g.length >= porGrupo || fin || i === ws.length - 1) {
+        grupos.push({ start: g[0].start, end: g[g.length - 1].end, words: g });
+        g = [];
+      }
+    });
+    return grupos;
+  }
+
+  function srt(grupos) {
+    const ts = (s) => {
+      const ms = Math.round(s * 1000);
+      const h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000), se = Math.floor((ms % 60000) / 1000), mm = ms % 1000;
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(se).padStart(2, "0")},${String(mm).padStart(3, "0")}`;
+    };
+    return grupos.map((g, i) => `${i + 1}\n${ts(g.start)} --> ${ts(g.end)}\n${g.words.map((w) => w.w).join(" ")}\n`).join("\n");
+  }
+
+  // SRT usando la duración de cada escena (sin audio aún)
+  function srtEscenas(r) {
+    let t = 0;
+    const out = [];
+    r.escenas.forEach((e) => {
+      subtitulos(e.locucion, e.duracion).forEach((g) => out.push({ start: g.start + t, end: g.end + t, words: g.words }));
+      t += e.duracion;
+    });
+    return srt(out);
+  }
+
+  VS.engine = { TIPOS, ATMOSFERAS, ESTADOS, plataformasVideo, plan, promptMaestro, promptTemas, parseTemas, parse, normalizar, borrador, textoHablado, contar, prompsVeoTexto, kitTexto, ficha, subtitulos, srt, srtEscenas };
+})(window.VS);
+
+</script>
+  <script>
+/* Conexión con la API de Gemini (Google AI Studio).
+   La llave se guarda solo en tu navegador y viaja directo a Google. */
+window.VS = window.VS || {};
+(function (VS) {
+  "use strict";
+  const BASE = "https://generativelanguage.googleapis.com/v1beta";
+
+  const VOCES = [
+    ["Kore", "Firme"], ["Charon", "Informativa"], ["Puck", "Animada"], ["Zephyr", "Brillante"],
+    ["Fenrir", "Emocionada"], ["Leda", "Juvenil"], ["Orus", "Firme"], ["Aoede", "Fresca"],
+    ["Callirrhoe", "Relajada"], ["Autonoe", "Brillante"], ["Enceladus", "Susurrante"], ["Iapetus", "Clara"],
+    ["Umbriel", "Relajada"], ["Algieba", "Suave"], ["Despina", "Suave"], ["Erinome", "Clara"],
+    ["Algenib", "Rasposa"], ["Rasalgethi", "Informativa"], ["Laomedeia", "Animada"], ["Achernar", "Delicada"],
+    ["Alnilam", "Firme"], ["Schedar", "Pareja"], ["Gacrux", "Madura"], ["Pulcherrima", "Directa"],
+    ["Achird", "Amigable"], ["Zubenelgenubi", "Casual"], ["Vindemiatrix", "Gentil"], ["Sadachbia", "Vivaz"],
+    ["Sadaltager", "Experta"], ["Sulafat", "Cálida"],
+  ];
+
+  function llave() {
+    const k = VS.store.state.settings.apiKey;
+    if (!k) throw new Error("Agrega tu API key de Gemini en Ajustes para usar la generación automática.");
+    return k;
+  }
+
+  async function errorDe(r) {
+    let msg = `Error ${r.status}`;
+    try {
+      const d = await r.json();
+      msg = (d.error && d.error.message) || msg;
+    } catch (e) { /* sin cuerpo */ }
+    if (r.status === 400 && /api key/i.test(msg)) msg = "La API key no es válida. Revísala en Ajustes.";
+    if (r.status === 403) msg = "La API key no tiene permiso para este modelo. " + msg;
+    if (r.status === 429) msg = "Llegaste al límite de uso de tu plan de Gemini. Espera un momento o revisa tu cuota. " + msg;
+    const e = new Error(msg);
+    e.status = r.status;
+    return e;
+  }
+
+  const headers = () => ({ "Content-Type": "application/json", "x-goog-api-key": llave() });
+
+  /* ---------- Texto ---------- */
+  async function texto(prompt, json) {
+    const s = VS.store.state.settings;
+    // 1) generateContent
+    let r = await fetch(`${BASE}/models/${encodeURIComponent(s.modelText)}:generateContent`, {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: json ? { responseMimeType: "application/json" } : {},
+      }),
+    });
+    if (r.ok) {
+      const d = await r.json();
+      const parts = (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts) || [];
+      const t = parts.filter((p) => !p.thought).map((p) => p.text || "").join("");
+      if (t) return t;
+    } else if ([400, 401, 403, 429].includes(r.status) && !(r.status === 400 && json)) {
+      throw await errorDe(r);
+    }
+    // 2) Interactions API (respaldo)
+    r = await fetch(`${BASE}/interactions`, {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({ model: s.modelText, input: [{ type: "user_input", content: [{ type: "text", text: prompt }] }] }),
+    });
+    if (!r.ok) throw await errorDe(r);
+    const d = await r.json();
+    const t = (d.steps || [])
+      .filter((st) => st.type === "model_output")
+      .flatMap((st) => st.content || [])
+      .filter((c) => c.type === "text")
+      .map((c) => c.text)
+      .join("");
+    if (!t) throw new Error("Gemini no devolvió texto.");
+    return t;
+  }
+
+  /* ---------- Voz (TTS) ---------- */
+  function b64aBytes(b64) {
+    const bin = atob(b64);
+    const u = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    return u;
+  }
+
+  function pcmAWav(pcm, rate) {
+    rate = rate || 24000;
+    const h = new ArrayBuffer(44);
+    const v = new DataView(h);
+    const w = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+    w(0, "RIFF"); v.setUint32(4, 36 + pcm.length, true); w(8, "WAVE"); w(12, "fmt ");
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    w(36, "data"); v.setUint32(40, pcm.length, true);
+    return new Blob([h, pcm], { type: "audio/wav" });
+  }
+
+  function aBlob(bytes, mime) {
+    const riff = bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46;
+    if (riff) return new Blob([bytes], { type: "audio/wav" });
+    if (mime && /mpeg|mp3|ogg|webm/.test(mime)) return new Blob([bytes], { type: mime });
+    const m = /rate=(\d+)/.exec(mime || "");
+    return pcmAWav(bytes, m ? Number(m[1]) : 24000);
+  }
+
+  async function voz(texto, voice, estilo) {
+    const s = VS.store.state.settings;
+    const content = { type: "text", text: texto };
+    if (estilo) content.annotations = [{ type: "speech_metadata", style: estilo }];
+    // 1) Interactions API (formato documentado actual)
+    let r = await fetch(`${BASE}/interactions`, {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({
+        model: s.modelTTS,
+        input: [{ type: "user_input", content: [content] }],
+        response_format: { type: "audio" },
+        generation_config: { speech_config: [{ voice }] },
+      }),
+    });
+    if (r.ok) {
+      const d = await r.json();
+      const audios = (d.steps || [])
+        .filter((st) => st.type === "model_output")
+        .flatMap((st) => st.content || [])
+        .filter((c) => c.type === "audio" && c.data);
+      const a = audios[audios.length - 1];
+      if (a) return aBlob(b64aBytes(a.data), a.mime_type);
+    } else if ([401, 403, 429].includes(r.status)) {
+      throw await errorDe(r);
+    }
+    // 2) generateContent (respaldo)
+    r = await fetch(`${BASE}/models/${encodeURIComponent(s.modelTTS)}:generateContent`, {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: estilo ? `Say in this style (${estilo}): ${texto}` : texto }] }],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } },
+        },
+      }),
+    });
+    if (!r.ok) throw await errorDe(r);
+    const d = await r.json();
+    const part = ((d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts) || []).find((p) => p.inlineData);
+    if (!part) throw new Error("Gemini no devolvió audio.");
+    return aBlob(b64aBytes(part.inlineData.data), part.inlineData.mimeType);
+  }
+
+  async function probar() {
+    const t = await texto('Responde solo con la palabra "listo".', false);
+    return t.trim();
+  }
+
+  VS.gemini = { VOCES, texto, voz, probar };
+})(window.VS);
+
+</script>
+  <script>
+/* Ensamblador de videos en el navegador: clips/imágenes + voz + música + subtítulos.
+   Dibuja en un canvas y graba con MediaRecorder (MP4 si el navegador lo permite, si no WebM). */
+window.VS = window.VS || {};
+(function (VS) {
+  "use strict";
+
+  const FORMATOS = {
+    "9:16": [1080, 1920],
+    "16:9": [1920, 1080],
+    "1:1": [1080, 1080],
+    "4:5": [1080, 1350],
+  };
+
+  class Ensamblador {
+    constructor(canvas) {
+      this.cv = canvas;
+      this.ctx = canvas.getContext("2d");
+      this.items = [];          // {tipo, url, el, nombre, dur}
+      this.voz = null;          // HTMLAudioElement
+      this.musica = null;
+      this.volVoz = 1;
+      this.volMusica = 0.18;
+      this.subs = [];
+      this.estilo = { posicion: "inferior", color: "#ffcf5c", caja: "glass", tam: 1, mayus: false };
+      this.marca = "";
+      this.muestra = false;
+      this.ajustar = true;      // repartir los clips en la duración de la voz
+      this.escala = 1;          // 1 = 1080p, 0.6667 = 720p
+      this.formato = "9:16";
+      this.reproduciendo = false;
+      this.alTerminar = null;
+      this.alAvanzar = null;
+      this.setFormato("9:16");
+    }
+
+    setFormato(f, escala) {
+      this.formato = f;
+      if (escala) this.escala = escala;
+      const [w, h] = FORMATOS[f] || FORMATOS["9:16"];
+      this.cv.width = Math.round((w * this.escala) / 2) * 2;
+      this.cv.height = Math.round((h * this.escala) / 2) * 2;
+      this.dibujar(0);
+    }
+
+    async agregarArchivo(file) {
+      const url = URL.createObjectURL(file);
+      if (file.type.startsWith("image/")) {
+        const el = new Image();
+        el.src = url;
+        await el.decode().catch(() => {});
+        this.items.push({ tipo: "imagen", url, el, nombre: file.name, dur: 4 });
+      } else if (file.type.startsWith("video/")) {
+        const el = document.createElement("video");
+        el.src = url;
+        el.muted = true;
+        el.playsInline = true;
+        el.preload = "auto";
+        el.loop = true;
+        await new Promise((res) => {
+          el.onloadedmetadata = res;
+          el.onerror = res;
+        });
+        this.items.push({ tipo: "video", url, el, nombre: file.name, dur: isFinite(el.duration) ? el.duration : 8 });
+      } else {
+        throw new Error(`${file.name} no es imagen ni video.`);
+      }
+      this.dibujar(0);
+    }
+
+    quitar(i) {
+      const [it] = this.items.splice(i, 1);
+      if (it) URL.revokeObjectURL(it.url);
+      this.dibujar(0);
+    }
+
+    mover(i, d) {
+      const j = i + d;
+      if (j < 0 || j >= this.items.length) return;
+      [this.items[i], this.items[j]] = [this.items[j], this.items[i]];
+      this.dibujar(0);
+    }
+
+    async setAudio(cual, blobOUrl) {
+      if (this[cual]) { this[cual].pause(); }
+      if (!blobOUrl) { this[cual] = null; return 0; }
+      const url = typeof blobOUrl === "string" ? blobOUrl : URL.createObjectURL(blobOUrl);
+      const a = new Audio();
+      a.src = url;
+      a.preload = "auto";
+      if (cual === "musica") a.loop = true;
+      await new Promise((res) => { a.onloadedmetadata = res; a.onerror = res; });
+      this[cual] = a;
+      this._conectado = false;
+      return isFinite(a.duration) ? a.duration : 0;
+    }
+
+    duracionVoz() {
+      return this.voz && isFinite(this.voz.duration) ? this.voz.duration : 0;
+    }
+
+    linea() {
+      // calcula inicio/fin de cada elemento
+      const dv = this.duracionVoz();
+      const n = this.items.length;
+      let total = 0;
+      const tramos = this.items.map((it) => {
+        const d = this.ajustar && dv && n ? dv / n : it.dur;
+        const t = { it, start: total, end: total + d };
+        total += d;
+        return t;
+      });
+      if (!n && dv) total = dv;
+      return { tramos, total: Math.max(total, dv ? dv : 0) || 0 };
+    }
+
+    /* ---------- Dibujo ---------- */
+    cubrir(src, sw, sh, zoom) {
+      const { cv, ctx } = this;
+      if (!sw || !sh) return;
+      const s = Math.max(cv.width / sw, cv.height / sh) * (zoom || 1);
+      const w = sw * s, h = sh * s;
+      ctx.drawImage(src, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
+    }
+
+    dibujar(t) {
+      const { cv, ctx } = this;
+      ctx.fillStyle = "#05070e";
+      ctx.fillRect(0, 0, cv.width, cv.height);
+      const { tramos } = this.linea();
+      const tr = tramos.find((x) => t >= x.start && t < x.end) || tramos[tramos.length - 1];
+      if (tr) {
+        const it = tr.it;
+        const local = t - tr.start;
+        const prog = (tr.end - tr.start) ? local / (tr.end - tr.start) : 0;
+        if (it.tipo === "imagen") {
+          this.cubrir(it.el, it.el.naturalWidth, it.el.naturalHeight, 1 + 0.08 * prog); // Ken Burns
+        } else {
+          if (!this.reproduciendo) {
+            const want = Math.min(local % (it.el.duration || 8), (it.el.duration || 8) - 0.05);
+            if (Math.abs(it.el.currentTime - want) > 0.3) it.el.currentTime = want;
+          }
+          this.cubrir(it.el, it.el.videoWidth, it.el.videoHeight, 1);
+        }
+        // fundido corto al entrar a cada tramo
+        if (local < 0.18 && tr.start > 0) {
+          ctx.fillStyle = `rgba(0,0,0,${0.55 * (1 - local / 0.18)})`;
+          ctx.fillRect(0, 0, cv.width, cv.height);
+        }
+      } else {
+        this.vacio();
+      }
+      this.dibujarSubtitulo(t);
+      this.dibujarMarca();
+    }
+
+    vacio() {
+      const { cv, ctx } = this;
+      const g = ctx.createLinearGradient(0, 0, cv.width, cv.height);
+      g.addColorStop(0, "#1a1430");
+      g.addColorStop(1, "#0b1020");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.fillStyle = "rgba(255,255,255,.55)";
+      ctx.font = `600 ${Math.round(cv.width * 0.04)}px "Plus Jakarta Sans", sans-serif`;
+      ctx.textAlign = "center";
+      ctx.fillText("Agrega clips o imágenes", cv.width / 2, cv.height / 2);
+    }
+
+    dibujarSubtitulo(t) {
+      if (!this.subs.length) return;
+      const g = this.subs.find((x) => t >= x.start && t < x.end);
+      if (!g) return;
+      const { cv, ctx, estilo } = this;
+      const base = Math.min(cv.width, cv.height);
+      const fs = Math.round(base * 0.068 * (estilo.tam || 1));
+      ctx.font = `800 ${fs}px "Plus Jakarta Sans", sans-serif`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      const palabras = g.words.map((w) => (estilo.mayus ? w.w.toUpperCase() : w.w));
+      const esp = ctx.measureText(" ").width;
+      const maxW = cv.width * 0.84;
+      // partir en líneas
+      const lineas = [[]];
+      let ancho = 0;
+      palabras.forEach((p, i) => {
+        const w = ctx.measureText(p).width;
+        if (ancho + w > maxW && lineas[lineas.length - 1].length) { lineas.push([]); ancho = 0; }
+        lineas[lineas.length - 1].push(i);
+        ancho += w + esp;
+      });
+      const lh = fs * 1.22;
+      const altoBloque = lineas.length * lh;
+      const yc = estilo.posicion === "superior" ? cv.height * 0.18 : estilo.posicion === "centro" ? cv.height * 0.5 : cv.height * 0.74;
+      const y0 = yc - altoBloque / 2 + lh / 2;
+      const anchos = lineas.map((l) => l.reduce((a, i) => a + ctx.measureText(palabras[i]).width, 0) + esp * (l.length - 1));
+      const maxL = Math.max(...anchos);
+      if (estilo.caja !== "ninguna") {
+        const pad = fs * 0.45;
+        const x = (cv.width - maxL) / 2 - pad, y = y0 - lh / 2 - pad * 0.6;
+        const w = maxL + pad * 2, h = altoBloque + pad * 1.2;
+        ctx.fillStyle = estilo.caja === "solida" ? "rgba(0,0,0,.82)" : "rgba(10,15,29,.55)";
+        redondeado(ctx, x, y, w, h, fs * 0.35);
+        ctx.fill();
+        if (estilo.caja === "glass") {
+          ctx.strokeStyle = "rgba(255,255,255,.18)";
+          ctx.lineWidth = Math.max(2, fs * 0.04);
+          ctx.stroke();
+        }
+      }
+      lineas.forEach((l, li) => {
+        let x = (cv.width - anchos[li]) / 2;
+        const y = y0 + li * lh;
+        l.forEach((i) => {
+          const w = g.words[i];
+          const activa = t >= w.start && t < w.end;
+          ctx.lineWidth = fs * 0.14;
+          ctx.strokeStyle = "rgba(0,0,0,.85)";
+          ctx.lineJoin = "round";
+          ctx.strokeText(palabras[i], x, y);
+          ctx.fillStyle = activa ? estilo.color : "#ffffff";
+          ctx.fillText(palabras[i], x, y);
+          x += ctx.measureText(palabras[i]).width + esp;
+        });
+      });
+    }
+
+    dibujarMarca() {
+      const { cv, ctx } = this;
+      const base = Math.min(cv.width, cv.height);
+      if (this.marca) {
+        ctx.font = `700 ${Math.round(base * 0.032)}px "Plus Jakarta Sans", sans-serif`;
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.fillStyle = "rgba(255,255,255,.85)";
+        ctx.shadowColor = "rgba(0,0,0,.6)";
+        ctx.shadowBlur = 8;
+        ctx.fillText(this.marca, base * 0.05, base * 0.05);
+        ctx.shadowBlur = 0;
+      }
+      if (this.muestra) {
+        ctx.save();
+        ctx.translate(cv.width / 2, cv.height / 2);
+        ctx.rotate(-Math.PI / 7);
+        ctx.font = `900 ${Math.round(base * 0.16)}px "Plus Jakarta Sans", sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "rgba(255,255,255,.13)";
+        ctx.fillText("MUESTRA", 0, 0);
+        ctx.restore();
+      }
+    }
+
+    /* ---------- Audio ---------- */
+    conectarAudio() {
+      if (!this.ac) this.ac = new (window.AudioContext || window.webkitAudioContext)();
+      if (!this.dest) this.dest = this.ac.createMediaStreamDestination();
+      this.nodos = this.nodos || new Map();
+      ["voz", "musica"].forEach((k) => {
+        const el = this[k];
+        if (!el) return;
+        if (!this.nodos.has(el)) {
+          const src = this.ac.createMediaElementSource(el);
+          const g = this.ac.createGain();
+          src.connect(g);
+          g.connect(this.ac.destination);
+          g.connect(this.dest);
+          this.nodos.set(el, g);
+        }
+        this.nodos.get(el).gain.value = k === "voz" ? this.volVoz : this.volMusica;
+      });
+    }
+
+    /* ---------- Reproducción ---------- */
+    async reproducir(grabando) {
+      const { total, tramos } = this.linea();
+      if (!total) throw new Error("Agrega clips, imágenes o una voz antes de reproducir.");
+      this.detener(true);
+      this.conectarAudio();
+      if (this.ac.state === "suspended") await this.ac.resume();
+      this.reproduciendo = true;
+      this.total = total;
+      [this.voz, this.musica].forEach((a) => { if (a) { a.currentTime = 0; a.play().catch(() => {}); } });
+      tramos.forEach((t) => { if (t.it.tipo === "video") { t.it.el.pause(); t.it.el.currentTime = 0; } });
+      let actual = -1;
+      const t0 = performance.now();
+      const paso = () => {
+        if (!this.reproduciendo) return;
+        const t = (performance.now() - t0) / 1000;
+        const i = tramos.findIndex((x) => t >= x.start && t < x.end);
+        if (i !== actual) {
+          if (actual >= 0 && tramos[actual].it.tipo === "video") tramos[actual].it.el.pause();
+          if (i >= 0 && tramos[i].it.tipo === "video") {
+            const v = tramos[i].it.el;
+            v.currentTime = 0;
+            v.play().catch(() => {});
+          }
+          actual = i;
+        }
+        // desvanecer la música en el último segundo
+        if (this.musica && this.nodos && this.nodos.has(this.musica)) {
+          const rest = total - t;
+          this.nodos.get(this.musica).gain.value = this.volMusica * Math.max(0, Math.min(1, rest));
+        }
+        this.dibujar(Math.min(t, total - 0.001));
+        this.alAvanzar && this.alAvanzar(t, total);
+        if (t >= total) {
+          this.detener();
+          this.alTerminar && this.alTerminar();
+          return;
+        }
+        this.raf = requestAnimationFrame(paso);
+      };
+      this.raf = requestAnimationFrame(paso);
+    }
+
+    detener(silencioso) {
+      this.reproduciendo = false;
+      cancelAnimationFrame(this.raf);
+      [this.voz, this.musica].forEach((a) => a && a.pause());
+      this.items.forEach((it) => it.tipo === "video" && it.el.pause());
+      if (!silencioso) this.dibujar(0);
+    }
+
+    static tipoGrabacion() {
+      const opciones = [
+        "video/mp4;codecs=avc1.42E01F,mp4a.40.2",
+        "video/mp4;codecs=avc1,mp4a",
+        "video/mp4",
+        "video/webm;codecs=vp9,opus",
+        "video/webm;codecs=vp8,opus",
+        "video/webm",
+      ];
+      return opciones.find((m) => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || "";
+    }
+
+    async exportar() {
+      if (!window.MediaRecorder || !this.cv.captureStream) throw new Error("Tu navegador no permite exportar video. Usa Chrome o Edge en computador.");
+      const mime = Ensamblador.tipoGrabacion();
+      this.conectarAudio();
+      const stream = this.cv.captureStream(30);
+      this.dest.stream.getAudioTracks().forEach((t) => stream.addTrack(t));
+      const rec = new MediaRecorder(stream, { mimeType: mime || undefined, videoBitsPerSecond: Math.round(8e6 * this.escala), audioBitsPerSecond: 160000 });
+      const partes = [];
+      rec.ondataavailable = (e) => e.data && e.data.size && partes.push(e.data);
+      const fin = new Promise((res) => (rec.onstop = res));
+      const terminar = this.alTerminar;
+      await new Promise((resolve, reject) => {
+        this.alTerminar = () => resolve();
+        rec.start(250);
+        this.reproducir(true).catch(reject);
+      });
+      this.alTerminar = terminar;
+      await new Promise((r) => setTimeout(r, 300));
+      rec.stop();
+      await fin;
+      const tipo = (mime || "video/webm").split(";")[0];
+      return { blob: new Blob(partes, { type: tipo }), ext: tipo.includes("mp4") ? "mp4" : "webm" };
+    }
+  }
+
+  function redondeado(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  VS.Ensamblador = Ensamblador;
+  VS.FORMATOS = FORMATOS;
+})(window.VS);
+
+</script>
+  <script>
+/* Mezclador para radio: voz + cama musical con entrada, bajada bajo la voz y salida.
+   Entrega un WAV estéreo 44.1 kHz normalizado, listo para emisora. */
+window.VS = window.VS || {};
+(function (VS) {
+  "use strict";
+  const RATE = 44100;
+
+  async function decodificar(blob) {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    try {
+      return await ac.decodeAudioData(await blob.arrayBuffer());
+    } finally {
+      ac.close && ac.close();
+    }
+  }
+
+  function aWav(buffer) {
+    const ch = buffer.numberOfChannels, n = buffer.length;
+    const datos = [];
+    for (let c = 0; c < ch; c++) datos.push(buffer.getChannelData(c));
+    // normalizar a -1 dBFS
+    let pico = 0;
+    datos.forEach((d) => { for (let i = 0; i < n; i++) { const a = Math.abs(d[i]); if (a > pico) pico = a; } });
+    const g = pico > 0 ? 0.891 / pico : 1;
+    const bytes = n * ch * 2;
+    const out = new DataView(new ArrayBuffer(44 + bytes));
+    const w = (o, s) => [...s].forEach((c, i) => out.setUint8(o + i, c.charCodeAt(0)));
+    w(0, "RIFF"); out.setUint32(4, 36 + bytes, true); w(8, "WAVE"); w(12, "fmt ");
+    out.setUint32(16, 16, true); out.setUint16(20, 1, true); out.setUint16(22, ch, true);
+    out.setUint32(24, buffer.sampleRate, true); out.setUint32(28, buffer.sampleRate * ch * 2, true);
+    out.setUint16(32, ch * 2, true); out.setUint16(34, 16, true); w(36, "data"); out.setUint32(40, bytes, true);
+    let o = 44;
+    for (let i = 0; i < n; i++) {
+      for (let c = 0; c < ch; c++) {
+        const v = Math.max(-1, Math.min(1, datos[c][i] * g));
+        out.setInt16(o, v < 0 ? v * 0x8000 : v * 0x7fff, true);
+        o += 2;
+      }
+    }
+    return new Blob([out], { type: "audio/wav" });
+  }
+
+  async function mezclar(op) {
+    const voz = await decodificar(op.voz);
+    const mus = op.musica ? await decodificar(op.musica) : null;
+    const intro = mus ? Number(op.intro) || 0 : 0.3;
+    const outro = mus ? Number(op.outro) || 0 : 0.5;
+    const largo = intro + voz.duration + outro;
+    const ctx = new OfflineAudioContext(2, Math.ceil(largo * RATE), RATE);
+
+    const sv = ctx.createBufferSource();
+    sv.buffer = voz;
+    const gv = ctx.createGain();
+    gv.gain.value = Number(op.volVoz) || 1;
+    sv.connect(gv).connect(ctx.destination);
+    sv.start(intro);
+
+    if (mus) {
+      const sm = ctx.createBufferSource();
+      sm.buffer = mus;
+      sm.loop = true;
+      const gm = ctx.createGain();
+      const alto = Number(op.volAlto) || 0.8;
+      const bajo = Number(op.volBajo) || 0.22;
+      const finVoz = intro + voz.duration;
+      const p = gm.gain;
+      p.setValueAtTime(0, 0);
+      p.linearRampToValueAtTime(alto, Math.min(0.4, intro || 0.4));
+      if (intro > 0.6) p.setValueAtTime(alto, intro - 0.5);
+      p.linearRampToValueAtTime(bajo, Math.max(intro, 0.45));
+      p.setValueAtTime(bajo, finVoz);
+      p.linearRampToValueAtTime(alto, Math.min(largo - 0.1, finVoz + 0.6));
+      p.setValueAtTime(alto, Math.max(finVoz + 0.6, largo - 1.2));
+      p.linearRampToValueAtTime(0, largo);
+      sm.connect(gm).connect(ctx.destination);
+      sm.start(0);
+    }
+    const render = await ctx.startRendering();
+    return { blob: aWav(render), duracion: largo };
+  }
+
+  VS.radio = { mezclar };
+})(window.VS);
+
+</script>
+  <script>
+/* Interfaz del estudio: Panel, Guiones, Automático, Voz, Ensamblar, Empresas, Ajustes y Ayuda. */
+(function (VS) {
+  "use strict";
+  const S = VS.store, E = VS.engine, G = VS.gemini;
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+  const view = $("#view");
+  const esc = (t) => String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  const LINKS = {
+    flow: "https://labs.google/fx/tools/flow",
+    gemini: "https://gemini.google.com/app",
+    llave: "https://aistudio.google.com/apikey",
+  };
+  const COL = { idea: "#94a0bb", guion: "#60a5fa", produccion: "#f5a524", listo: "#34d399", publicado: "#c4b5fd" };
+
+  /* ---------- Utilidades ---------- */
+  VS.toast = function (msg, tipo) {
+    const t = document.createElement("div");
+    t.className = "toast " + (tipo || "");
+    t.textContent = msg;
+    $("#toasts").appendChild(t);
+    setTimeout(() => t.remove(), tipo === "error" ? 7000 : 3200);
+  };
+  const toast = VS.toast;
+
+  async function copiar(texto, msg) {
+    try {
+      await navigator.clipboard.writeText(texto);
+    } catch (e) {
+      const ta = document.createElement("textarea");
+      ta.value = texto;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+    }
+    toast(msg || "Copiado ✓", "ok");
+  }
+
+  function descargar(nombre, data, mime) {
+    const blob = data instanceof Blob ? data : new Blob([data], { type: (mime || "text/plain") + ";charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+
+  const slug = (s) => String(s || "proyecto").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "proyecto";
+
+  function cargando(btn, on, texto) {
+    if (!btn) return;
+    if (on) {
+      btn.dataset.txt = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spin"></span> ${texto || "Generando…"}`;
+    } else {
+      btn.disabled = false;
+      if (btn.dataset.txt) btn.innerHTML = btn.dataset.txt;
+    }
+  }
+
+  function modal(html) {
+    const m = document.createElement("div");
+    m.className = "modal";
+    m.innerHTML = `<div class="card">${html}</div>`;
+    document.body.appendChild(m);
+    const cerrar = () => m.remove();
+    m.addEventListener("click", (e) => { if (e.target === m || e.target.closest("[data-close]")) cerrar(); });
+    return { el: m, cerrar };
+  }
+
+  const getPath = (o, path) => path.split(".").reduce((a, k) => (a == null ? a : a[k]), o);
+  function setPath(o, path, v) {
+    const ks = path.split(".");
+    let x = o;
+    for (let i = 0; i < ks.length - 1; i++) {
+      if (x[ks[i]] == null) x[ks[i]] = {};
+      x = x[ks[i]];
+    }
+    x[ks[ks.length - 1]] = v;
+  }
+
+  let tGuardar;
+  const guardarLuego = (p) => { if (p) p.actualizado = Date.now(); clearTimeout(tGuardar); tGuardar = setTimeout(() => S.save(), 400); };
+  const fmtFecha = (f) => (f ? new Date(f + "T12:00:00").toLocaleDateString("es-CO", { weekday: "short", day: "numeric", month: "short" }) : "");
+  const fmtSeg = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  const durTxt = (s) => (s >= 60 ? `${Math.round((s / 60) * 10) / 10} min` : `${s} s`);
+
+  function opciones(lista, actual) {
+    return lista.map((o) => {
+      const [v, l] = Array.isArray(o) ? o : [o, o];
+      return `<option value="${esc(v)}" ${String(v) === String(actual) ? "selected" : ""}>${esc(l)}</option>`;
+    }).join("");
+  }
+
+  function selectorProyecto(actualId, incluirNuevo) {
+    const ps = S.state.projects;
+    return `<select id="pSel" style="min-width:230px">
+      ${incluirNuevo ? `<option value="__nuevo">＋ Nuevo proyecto</option>` : `<option value="">— Elige un proyecto —</option>`}
+      ${ps.map((p) => `<option value="${p.id}" ${p.id === actualId ? "selected" : ""}>${E.TIPOS[p.tipo].icono} ${esc(p.titulo || "Sin título")}</option>`).join("")}
+    </select>`;
+  }
+
+  function nuevoProyecto(tipo, marcaId) {
+    tipo = tipo || "short";
+    const b = (marcaId && S.brand(marcaId)) || S.state.brands[0];
+    const T = E.TIPOS[tipo];
+    return {
+      id: null, titulo: "", tipo, marcaId: b ? b.id : "",
+      duracion: tipo === "largo" ? T.duraciones[0] : T.duraciones[1],
+      clip: S.state.settings.clip, formato: T.video ? T.formato : "audio", audioVeo: "ambiente",
+      idioma: b ? b.idioma : "español", atmosfera: E.ATMOSFERAS[0], tema: "", cta: "",
+      estado: "idea", fecha: "", plataformas: [], resultado: null,
+    };
+  }
+
+  /* ---------- Rutas ---------- */
+  function ruta() {
+    const h = location.hash.replace(/^#\/?/, "") || "panel";
+    const [v, id] = h.split("/");
+    return { v, id };
+  }
+  function ir(h) {
+    if (location.hash === h) render();
+    else location.hash = h;
+  }
+
+  function estadoApi() {
+    const k = S.state.settings.apiKey;
+    const c = S.cloud;
+    const nube = {
+      local: ["", "Solo este navegador"],
+      cargando: ["warn", "Cargando de la nube…"],
+      guardando: ["warn", "Guardando…"],
+      ok: ["on", "Sincronizado en la nube"],
+      offline: ["err", "Sin conexión · se guarda al volver"],
+      sesion: ["err", "Sesión vencida"],
+    }[c.estado] || ["", c.estado];
+    const el = $("#apiStatus");
+    if (!el) return;
+    el.innerHTML = `
+      <div><span class="dot ${nube[0]}"></span>${nube[1]}</div>
+      <div style="margin-top:6px">${k ? `<span class="dot on"></span>Gemini conectado` : `<span class="dot"></span>Sin API key`}</div>`;
+  }
+  VS.alSincronizar = estadoApi;
+
+  const MIC = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v4"/></svg>';
+  const logoActual = () => S.state.settings.logo || "";
+  // Contenido del ícono de marca: tu logo o el micrófono por defecto
+  const logoHtml = () => (logoActual() ? `<img src="${logoActual()}" alt="">` : MIC);
+
+  function aplicarNombre() {
+    const n = S.state.settings.appName || "Vocalis Studio";
+    const b = $(".brand b");
+    if (b) b.textContent = n;
+    document.title = n + " · Estudio de producción";
+    $$(".brand-icon").forEach((el) => {
+      el.classList.toggle("has-logo", !!logoActual());
+      el.innerHTML = logoHtml();
+    });
+    let fav = document.querySelector('link[rel="icon"]');
+    if (!fav) { fav = document.createElement("link"); fav.rel = "icon"; document.head.appendChild(fav); }
+    if (!fav.dataset.base) fav.dataset.base = fav.href;
+    fav.href = logoActual() || fav.dataset.base;
+  }
+
+  // Ajusta la imagen a un cuadrado de 256 px sin deformarla (fondo transparente)
+  function prepararLogo(file) {
+    return new Promise((res, rej) => {
+      if (!/^image\//.test(file.type)) return rej(new Error("Elige una imagen PNG, JPG, SVG o WEBP."));
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const N = 256, cv = document.createElement("canvas");
+        cv.width = cv.height = N;
+        const w = img.naturalWidth || N, h = img.naturalHeight || N, k = Math.min(N / w, N / h);
+        cv.getContext("2d").drawImage(img, (N - w * k) / 2, (N - h * k) / 2, w * k, h * k);
+        URL.revokeObjectURL(url);
+        let out = cv.toDataURL("image/png");
+        if (out.length > 180000) out = cv.toDataURL("image/webp", 0.9);
+        res(out);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("No se pudo leer esa imagen.")); };
+      img.src = url;
+    });
+  }
+
+  function render() {
+    const { v, id } = ruta();
+    $$("[data-nav]").forEach((a) => a.classList.toggle("active", a.dataset.nav === v));
+    estadoApi();
+    if (VS.asm && VS.asm.inst && v !== "ensamblador") VS.asm.inst.detener(true);
+    (VIEWS[v] || VIEWS.panel)(id);
+  }
+
+  /* =========================================================
+     PANEL
+     ========================================================= */
+  let filtroEmpresa = "";
+  function vPanel() {
+    if (filtroEmpresa && !S.brand(filtroEmpresa)) filtroEmpresa = "";
+    const P = S.state.projects.filter((p) => !filtroEmpresa || p.marcaId === filtroEmpresa);
+    const n = (f) => P.filter(f).length;
+    const prox = P.filter((p) => p.fecha && p.estado !== "publicado").sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 8);
+    view.innerHTML = `
+      <div class="page-head">
+        <div><span class="eyebrow">Tu estudio</span><h1>Panel de producción</h1><p>Guiones, prompts, voces y videos de muestra en un solo flujo.</p></div>
+        <div class="btn-row">
+          <select id="fEmp" style="min-width:200px"><option value="">Todas las empresas</option>${S.state.brands.slice().sort((a, b) => a.nombre.localeCompare(b.nombre)).map((b) => `<option value="${b.id}" ${b.id === filtroEmpresa ? "selected" : ""}>${esc(b.nombre)}</option>`).join("")}</select>
+          <a class="btn btn-ghost" href="#/auto${filtroEmpresa ? "/" + filtroEmpresa : ""}">⚡ Automático</a>
+          <a class="btn btn-gold" href="#/estudio/nuevo">＋ Nuevo</a>
+        </div>
+      </div>
+      <div class="quick">
+        ${Object.entries(E.TIPOS).map(([k, t]) => `
+          <button data-new="${k}"><span class="qi">${t.icono}</span>
+            <span><b>${t.label}</b><small>${t.video ? "Guion + prompts Veo + kit" : k === "jingle" ? "Letra + prompt musical + voz" : "Locución + música + voz"}</small></span>
+          </button>`).join("")}
+      </div>
+      <div class="stats">
+        <div class="stat"><b>${P.length}</b><span>Proyectos</span></div>
+        <div class="stat"><b style="color:var(--gold-2)">${n((p) => p.estado === "guion" || p.estado === "produccion")}</b><span>En proceso</span></div>
+        <div class="stat"><b style="color:var(--green)">${n((p) => p.estado === "listo")}</b><span>Listos para publicar</span></div>
+        <div class="stat"><b style="color:var(--violet-2)">${n((p) => p.estado === "publicado")}</b><span>Publicados</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Flujo de producción</span><span class="muted small">Usa las flechas para mover cada pieza</span></div>
+        ${P.length ? `<div class="kanban">
+          ${E.ESTADOS.map((e, ei) => `
+            <div class="col">
+              <div class="col-head"><span style="color:var(--text);font-family:var(--font);font-size:.86rem"><i class="dotc" style="background:${COL[e.id]}"></i>${e.label}</span><span>${n((p) => p.estado === e.id)}</span></div>
+              ${P.filter((p) => p.estado === e.id).map((p) => {
+                const b = S.brand(p.marcaId);
+                return `<a class="pcard" href="#/estudio/${p.id}">
+                  <span class="chip" style="font-size:.7rem">${E.TIPOS[p.tipo].icono} ${durTxt(p.duracion)}</span>
+                  <b>${esc(p.titulo || "Sin título")}</b>
+                  <div class="meta"><span>${esc(b ? b.nombre : "Sin marca")}${p.fecha ? " · " + fmtFecha(p.fecha) : ""}</span>
+                    <span class="mv">${ei > 0 ? `<button data-mv="${p.id}" data-d="-1" title="Atrás">←</button>` : ""}${ei < 4 ? `<button data-mv="${p.id}" data-d="1" title="Avanzar">→</button>` : ""}</span>
+                  </div></a>`;
+              }).join("")}
+            </div>`).join("")}
+        </div>` : `<div class="empty"><div class="big">🎬</div><h2>Aún no tienes proyectos</h2><p>Elige arriba qué quieres crear: un reel, un video largo, una cuña o un jingle.</p></div>`}
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Próximas publicaciones</span><a class="btn btn-ghost btn-sm" href="#/marcas">Empresas</a></div>
+        ${prox.length ? `<div class="list">${prox.map((p) => `
+          <a class="list-item" href="#/estudio/${p.id}" style="text-decoration:none">
+            <span>${E.TIPOS[p.tipo].icono} <b>${esc(p.titulo || "Sin título")}</b> <span class="muted small">· ${(p.plataformas || []).join(", ") || "sin plataforma"}</span></span>
+            <span class="chip" style="border-color:${COL[p.estado]};color:${COL[p.estado]}">${fmtFecha(p.fecha)}</span>
+          </a>`).join("")}</div>` : `<p class="muted small">Ponle fecha de publicación a tus proyectos y aparecerán aquí en orden.</p>`}
+      </div>`;
+
+    $("#fEmp").addEventListener("change", (e) => { filtroEmpresa = e.target.value; vPanel(); });
+    $$("[data-new]").forEach((b) => b.addEventListener("click", () => {
+      actual = nuevoProyecto(b.dataset.new, filtroEmpresa);
+      ir("#/estudio");
+    }));
+    $$("[data-mv]").forEach((b) => b.addEventListener("click", (e) => {
+      e.preventDefault();
+      const p = S.project(b.dataset.mv);
+      const i = E.ESTADOS.findIndex((x) => x.id === p.estado) + Number(b.dataset.d);
+      p.estado = E.ESTADOS[Math.max(0, Math.min(4, i))].id;
+      S.upsertProject(p);
+      vPanel();
+    }));
+  }
+
+  /* =========================================================
+     ESTUDIO DE GUIONES
+     ========================================================= */
+  let actual = null;
+
+  function vEstudio(id) {
+    if (id === "nuevo") actual = nuevoProyecto(actual && !actual.id ? actual.tipo : "short");
+    else if (id && S.project(id)) actual = S.project(id);
+    else if (!actual) actual = nuevoProyecto();
+    const p = actual;
+    const T = E.TIPOS[p.tipo];
+    const b = S.brand(p.marcaId);
+    const s = S.state.settings;
+
+    view.innerHTML = `
+      <div class="page-head">
+        <div><span class="eyebrow">Generador de guiones y prompts</span><h1>${p.id ? esc(p.titulo || "Proyecto") : "Nuevo proyecto"}</h1></div>
+        <div class="btn-row">${selectorProyecto(p.id, true)}</div>
+      </div>
+      <div class="grid-2">
+        <div class="sticky">
+          <div class="card">
+            <div class="card-head"><span class="card-title">1 · Configuración</span>${p.id ? `<span class="chip" style="color:${COL[p.estado]};border-color:${COL[p.estado]}">${E.ESTADOS.find((e) => e.id === p.estado).label}</span>` : ""}</div>
+            <div class="field"><span>Tipo de pieza</span>
+              <div class="seg">${Object.entries(E.TIPOS).map(([k, t]) => `<button type="button" data-tipo="${k}" class="${k === p.tipo ? "on" : ""}"><span>${t.icono}</span>${t.label}</button>`).join("")}</div>
+            </div>
+            <label class="field"><span>Empresa / página</span>
+              <select id="fMarca">${S.state.brands.map((x) => `<option value="${x.id}" ${x.id === p.marcaId ? "selected" : ""}>${esc(x.nombre)}</option>`).join("")}<option value="" ${!p.marcaId ? "selected" : ""}>Sin marca</option></select>
+            </label>
+            <div class="row">
+              <label class="field"><span>Duración</span><select id="fDur">${opciones(T.duraciones.map((d) => [d, durTxt(d)]), p.duracion)}</select></label>
+              ${T.video
+                ? `<label class="field"><span>Clip de Veo</span><select id="fClip">${opciones([[4, "4 s"], [6, "6 s"], [8, "8 s"], [10, "10 s"]], p.clip)}</select></label>`
+                : `<label class="field"><span>Idioma</span><input type="text" id="fIdioma" value="${esc(p.idioma)}"></label>`}
+            </div>
+            ${T.video ? `
+            <div class="row">
+              <label class="field"><span>Formato</span><select id="fFormato">${opciones([["9:16", "9:16 vertical"], ["16:9", "16:9 horizontal"], ["1:1", "1:1 cuadrado"], ["4:5", "4:5 feed"]], p.formato)}</select></label>
+              <label class="field"><span>Idioma</span><input type="text" id="fIdioma" value="${esc(p.idioma)}"></label>
+            </div>
+            <label class="field"><span>Audio dentro de los clips</span>
+              <select id="fAudioVeo">${opciones([["ambiente", "Voz en off aparte (solo ambiente)"], ["dialogo", "El personaje habla en el clip"]], p.audioVeo)}</select>
+            </label>` : ""}
+            <label class="field"><span>Atmósfera y dirección</span><select id="fAtm">${opciones(E.ATMOSFERAS, p.atmosfera)}</select></label>
+            <label class="field"><span>Tema o enfoque</span><textarea id="fTema" rows="3" placeholder="Ej: 3 hábitos para atraer dinero · lanzamiento del borojó · promo de fin de semana">${esc(p.tema)}</textarea></label>
+            <label class="field"><span>Llamado a la acción</span><input type="text" id="fCta" value="${esc(p.cta)}" placeholder="${esc(b ? b.cta : "Ej: Pide por WhatsApp")}"></label>
+            <div class="plan" id="plan"></div>
+            <div class="btn-stack">
+              <button class="btn btn-gold btn-block" id="bGen">✨ Generar con Gemini</button>
+              <div class="row">
+                <button class="btn btn-ghost" id="bPrompt" title="Para pegar en Gemini o AI Studio">Copiar prompt maestro</button>
+                <button class="btn btn-ghost" id="bPegar">Pegar respuesta</button>
+              </div>
+              <button class="btn btn-ghost btn-sm" id="bBorr">⚡ Borrador rápido sin IA</button>
+              <p class="small muted" style="text-align:center">Abrir <a href="${LINKS.gemini}" target="_blank" rel="noopener">Gemini ↗</a> · <a href="${LINKS.flow}" target="_blank" rel="noopener">Flow ↗</a></p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Publicación</span></div>
+            <div class="row">
+              <label class="field"><span>Estado</span><select id="fEstado">${opciones(E.ESTADOS.map((e) => [e.id, e.label]), p.estado)}</select></label>
+              <label class="field"><span>Fecha</span><input type="date" id="fFecha" value="${esc(p.fecha)}"></label>
+            </div>
+            <div class="field"><span>Plataformas</span>
+              <div class="checks">${E.plataformasVideo.concat(["WhatsApp", "Emisora"]).map((pl) => `<label class="check"><input type="checkbox" data-plat="${pl}" ${(p.plataformas || []).includes(pl) ? "checked" : ""}> ${pl}</label>`).join("")}</div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-ghost btn-sm" id="bGuardar">Guardar</button>
+              ${p.id ? `<button class="btn btn-ghost btn-sm" id="bDup">Duplicar</button><button class="btn btn-red btn-sm" id="bDel">Eliminar</button>` : ""}
+            </div>
+          </div>
+        </div>
+        <div id="res"></div>
+      </div>`;
+
+    pintarPlan();
+    pintarResultado();
+    eventosEstudio();
+  }
+
+  function pintarPlan() {
+    const p = actual;
+    const pl = E.plan(p);
+    const T = E.TIPOS[p.tipo];
+    $("#plan").innerHTML = T.video
+      ? `🎯 <b>Plan:</b> ${pl.escenas} clips (${resumenClips(pl.clips)}) = <b>${pl.dur} s</b>. Locución de ~<b>${pl.palabras}</b> palabras a ${pl.wps} palabras/seg.`
+      : `🎯 <b>Plan:</b> ${T.label} de <b>${pl.dur} s</b> · ~<b>${pl.palabras}</b> palabras ${p.tipo === "jingle" ? "cantadas" : "habladas"}.`;
+  }
+  function resumenClips(c) {
+    const m = {};
+    c.forEach((x) => (m[x] = (m[x] || 0) + 1));
+    return Object.entries(m).map(([d, n]) => `${n} de ${d} s`).join(" + ");
+  }
+
+  function persistir() {
+    const p = actual;
+    if (p.id) S.upsertProject(p);
+  }
+
+  function eventosEstudio() {
+    const p = actual;
+    $("#pSel").addEventListener("change", (e) => {
+      if (e.target.value === "__nuevo") ir("#/estudio/nuevo");
+      else ir("#/estudio/" + e.target.value);
+    });
+    $$("[data-tipo]").forEach((btn) => btn.addEventListener("click", () => {
+      if (p.tipo === btn.dataset.tipo) return;
+      if (p.resultado && !confirm("Cambiar el tipo borra el guion actual de este proyecto. ¿Continuar?")) return;
+      const T = E.TIPOS[btn.dataset.tipo];
+      p.tipo = btn.dataset.tipo;
+      p.duracion = p.tipo === "largo" ? T.duraciones[0] : T.duraciones[1];
+      p.formato = T.video ? T.formato : "audio";
+      p.resultado = null;
+      persistir();
+      vEstudio();
+    }));
+    const campo = (sel, key, num, rerender) => {
+      const el = $(sel);
+      if (!el) return;
+      el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => {
+        p[key] = num ? Number(el.value) : el.value;
+        pintarPlan();
+        persistir();
+        if (rerender) rerender();
+      });
+    };
+    campo("#fDur", "duracion", true);
+    campo("#fClip", "clip", true);
+    campo("#fFormato", "formato");
+    campo("#fAudioVeo", "audioVeo");
+    campo("#fIdioma", "idioma");
+    campo("#fAtm", "atmosfera");
+    campo("#fTema", "tema");
+    campo("#fCta", "cta");
+    campo("#fFecha", "fecha");
+    $("#fMarca").addEventListener("change", (e) => {
+      p.marcaId = e.target.value;
+      const b = S.brand(p.marcaId);
+      if (b && b.idioma) { p.idioma = b.idioma; const i = $("#fIdioma"); if (i) i.value = b.idioma; }
+      $("#fCta").placeholder = b ? b.cta || "" : "";
+      persistir();
+    });
+    $("#fEstado").addEventListener("change", (e) => { p.estado = e.target.value; persistir(); });
+    $$("[data-plat]").forEach((c) => c.addEventListener("change", () => {
+      p.plataformas = $$("[data-plat]").filter((x) => x.checked).map((x) => x.dataset.plat);
+      persistir();
+    }));
+
+    $("#bGen").addEventListener("click", async (e) => {
+      if (!S.state.settings.apiKey) {
+        toast("Agrega tu API key en Ajustes, o usa “Copiar prompt maestro” y pégalo en Gemini.", "error");
+        return;
+      }
+      const btn = e.currentTarget;
+      cargando(btn, true, "Escribiendo guion y prompts…");
+      try {
+        const t = await G.texto(E.promptMaestro(p, S.brand(p.marcaId)), true);
+        aplicar(E.parse(t));
+        toast("Guion generado ✓", "ok");
+      } catch (err) {
+        toast(err.message, "error");
+      } finally {
+        cargando(btn, false);
+      }
+    });
+    $("#bPrompt").addEventListener("click", () => {
+      copiar(E.promptMaestro(p, S.brand(p.marcaId)), "Prompt copiado. Pégalo en Gemini y luego usa “Pegar respuesta”.");
+    });
+    $("#bPegar").addEventListener("click", () => {
+      const m = modal(`
+        <div class="card-head"><h2>Pegar respuesta de Gemini</h2><button class="btn btn-ghost btn-sm" data-close>Cerrar</button></div>
+        <p class="muted small" style="margin-bottom:10px">Copia toda la respuesta de Gemini (el JSON) y pégala aquí.</p>
+        <textarea id="mTxt" class="code" rows="12" placeholder='{ "titulo": ... }'></textarea>
+        <div class="btn-row" style="margin-top:12px;justify-content:flex-end"><button class="btn btn-gold" id="mOk">Importar guion</button></div>`);
+      $("#mTxt", m.el).focus();
+      $("#mOk", m.el).addEventListener("click", () => {
+        try {
+          aplicar(E.parse($("#mTxt", m.el).value));
+          m.cerrar();
+          toast("Guion importado ✓", "ok");
+        } catch (err) {
+          toast(err.message, "error");
+        }
+      });
+    });
+    $("#bBorr").addEventListener("click", () => {
+      if (p.resultado && !confirm("¿Reemplazar el guion actual por un borrador rápido?")) return;
+      aplicar(E.borrador(p, S.brand(p.marcaId)));
+      toast("Borrador creado. Edítalo a tu gusto.", "ok");
+    });
+    $("#bGuardar").addEventListener("click", () => {
+      if (!p.titulo) p.titulo = (p.tema || E.TIPOS[p.tipo].label).slice(0, 60);
+      const nuevo = !p.id;
+      S.upsertProject(p);
+      toast("Proyecto guardado ✓", "ok");
+      if (nuevo) ir("#/estudio/" + p.id);
+    });
+    const dup = $("#bDup");
+    if (dup) dup.addEventListener("click", () => {
+      const c = JSON.parse(JSON.stringify(p));
+      c.id = null;
+      c.titulo = (p.titulo || "Proyecto") + " (copia)";
+      c.estado = c.resultado ? "guion" : "idea";
+      c.fecha = "";
+      delete c.vozActiva;
+      S.upsertProject(c);
+      toast("Proyecto duplicado ✓", "ok");
+      ir("#/estudio/" + c.id);
+    });
+    const del = $("#bDel");
+    if (del) del.addEventListener("click", () => {
+      if (!confirm(`¿Eliminar “${p.titulo}”? También se borran sus tomas de voz.`)) return;
+      S.deleteProject(p.id);
+      actual = null;
+      toast("Proyecto eliminado");
+      ir("#/panel");
+    });
+  }
+
+  function aplicar(r) {
+    const p = actual;
+    p.resultado = r;
+    p.titulo = r.titulo || p.titulo || "Sin título";
+    if (p.estado === "idea") p.estado = "guion";
+    const nuevo = !p.id;
+    S.upsertProject(p);
+    if (nuevo) ir("#/estudio/" + p.id);
+    else vEstudio(p.id);
+  }
+
+  /* ---------- Resultado ---------- */
+  function areaCopia(path, valor, filas, cls) {
+    return `<div class="copy-wrap"><textarea data-k="${path}" rows="${filas || 3}" class="${cls || ""}">${esc(valor)}</textarea><button class="btn btn-ghost btn-sm" data-copy="${path}">Copiar</button></div>`;
+  }
+
+  function pintarResultado() {
+    const p = actual;
+    const r = p.resultado;
+    const el = $("#res");
+    if (!r) {
+      el.innerHTML = `
+        <div class="card empty">
+          <div class="big">${E.TIPOS[p.tipo].icono}</div>
+          <h2>Configura y genera tu ${E.TIPOS[p.tipo].label.toLowerCase()}</h2>
+          <p>El estudio arma el guion por escenas, los prompts para Veo 3 en Flow, la dirección de voz y el kit para redes.</p>
+          <div class="modes">
+            <div class="mode"><b>✨ Con API</b><p class="muted">Un clic. Necesitas tu API key de Gemini en Ajustes.</p></div>
+            <div class="mode"><b>📋 Copiar y pegar</b><p class="muted">Copia el prompt maestro, pégalo en Gemini y trae la respuesta. Gratis con tu cuenta.</p></div>
+            <div class="mode"><b>⚡ Borrador</b><p class="muted">Estructura base al instante, sin IA, para editar a mano.</p></div>
+          </div>
+        </div>`;
+      return;
+    }
+    const b = S.brand(p.marcaId);
+    const T = E.TIPOS[p.tipo];
+    const pl = E.plan(p);
+    const total = E.contar(E.textoHablado(r, p.tipo));
+    const seg = Math.round(total / pl.wps);
+    let h = `
+      <div class="card hero-result">
+        <div class="chips">
+          <span class="chip chip-gold">${T.icono} ${T.label}</span>
+          <span class="chip">${durTxt(p.duracion)}${T.video ? " · " + p.formato : ""}</span>
+          ${b ? `<span class="chip chip-pink">${esc(b.nombre)}</span>` : ""}
+          ${b && b.voz ? `<span class="chip chip-violet">🎙️ ${esc(b.voz.voice || "")}${b.voz.arquetipo ? " · " + esc(b.voz.arquetipo) : ""}</span>` : ""}
+          <span class="chip ${seg > pl.dur * 1.1 ? "chip-red" : "chip-green"}" id="cTotal">${total} palabras · ~${seg} s</span>
+        </div>
+        <input type="text" class="title-input" data-k="titulo" value="${esc(r.titulo)}" style="margin-top:10px">
+        ${r.gancho ? `<p class="hook">Gancho: ${esc(r.gancho)}</p>` : ""}
+        <div class="btn-row" style="margin-top:10px">
+          ${T.video
+            ? `<button class="btn btn-green btn-sm" data-act="veoAll">Copiar todos los prompts Veo</button><a class="btn btn-gold btn-sm" href="${LINKS.flow}" target="_blank" rel="noopener">Abrir Flow ↗</a>`
+            : `<button class="btn btn-green btn-sm" data-copy="prompt_musica">Copiar prompt de música</button>`}
+          <button class="btn btn-ghost btn-sm" data-act="ficha">Descargar ficha</button>
+          ${T.video ? `<button class="btn btn-ghost btn-sm" data-act="srt">Subtítulos .srt</button>` : ""}
+          <a class="btn btn-violet btn-sm" href="#/voz/${p.id}">🎙️ Crear voz</a>
+          ${T.video ? `<a class="btn btn-ghost btn-sm" href="#/ensamblador/${p.id}">🎬 Ensamblar muestra</a>` : ""}
+        </div>
+      </div>`;
+
+    if (r.ancla_visual) {
+      h += `<div class="card"><div class="card-head"><span class="card-title">🎨 Ancla visual (coherencia entre clips)</span></div>${areaCopia("ancla_visual", r.ancla_visual, 2)}</div>`;
+    }
+
+    if (T.video) {
+      r.escenas.forEach((e, i) => {
+        const pal = E.contar(e.locucion);
+        const max = pl.porEscena[i] || Math.round(e.duracion * pl.wps);
+        h += `
+        <div class="card scene">
+          <div class="scene-head">
+            <span class="scene-n">🎬 Escena ${e.n}</span>
+            <span class="chip chip-green">Veo 3 · clip de ${e.duracion} s</span>
+            <span class="chip ${pal > max ? "chip-red" : ""}" id="wc-${i}">${pal}/${max} palabras</span>
+            <span class="muted small" style="margin-left:auto">${esc(e.visual)}</span>
+          </div>
+          <label class="field"><span>Locución</span><textarea data-k="escenas.${i}.locucion" data-wc="${i}" rows="2">${esc(e.locucion)}</textarea></label>
+          <label class="field"><span>Texto en pantalla</span><input type="text" data-k="escenas.${i}.texto_pantalla" value="${esc(e.texto_pantalla)}"></label>
+          <div class="field"><span>Prompt para Veo 3 (Flow)</span>${areaCopia(`escenas.${i}.prompt_veo`, e.prompt_veo, 4, "code")}</div>
+          <details class="more"><summary>Prompt de imagen / fotograma inicial</summary><div>${areaCopia(`escenas.${i}.prompt_imagen`, e.prompt_imagen, 3, "code")}</div></details>
+        </div>`;
+      });
+    }
+
+    if (p.tipo === "jingle") {
+      h += `
+        <div class="card">
+          <div class="card-head"><span class="card-title">🎵 Jingle</span>
+            <div class="chips"><span class="chip">${esc(r.genero || "")}</span><span class="chip">${esc(r.bpm || "")} BPM</span><span class="chip">${esc(r.tonalidad || "")}</span></div>
+          </div>
+          ${r.estructura.map((e, i) => `
+            <label class="field"><span>${esc(e.parte)}${e.duracion ? " · " + e.duracion + " s" : ""}</span>
+              <textarea data-k="estructura.${i}.letra" rows="${Math.max(2, String(e.letra || "").split("\n").length)}">${esc(e.letra)}</textarea></label>`).join("")}
+        </div>`;
+    }
+
+    if (p.tipo === "cuna") {
+      h += `
+        <div class="card">
+          <div class="card-head"><span class="card-title">📻 Locución</span></div>
+          ${r.lineas.map((l, i) => `
+            <div class="row" style="grid-template-columns:130px 1fr;margin-bottom:8px">
+              <input type="text" data-k="lineas.${i}.rol" value="${esc(l.rol)}">
+              <textarea data-k="lineas.${i}.texto" rows="2">${esc(l.texto)}</textarea>
+            </div>`).join("")}
+          ${r.musica ? `<hr class="sep"><p class="small"><b>Cama musical:</b> <span class="muted">${esc(r.musica)}</span></p>` : ""}
+          ${r.sfx.length ? `<p class="small" style="margin-top:6px"><b>Efectos:</b> <span class="muted">${r.sfx.map(esc).join(" · ")}</span></p>` : ""}
+        </div>`;
+    }
+
+    if (r.prompt_musica) {
+      h += `<div class="card"><div class="card-head"><span class="card-title">🎼 Prompt de música (Lyria · Flow · Suno)</span></div>${areaCopia("prompt_musica", r.prompt_musica, 5, "code")}</div>`;
+    }
+
+    h += `
+      <div class="card">
+        <div class="card-head"><span class="card-title">🎙️ Dirección de voz</span><button class="btn btn-ghost btn-sm" data-act="tts">Copiar directiva TTS</button></div>
+        <label class="field"><span>Estilo de interpretación</span><input type="text" data-k="voz.estilo" value="${esc(r.voz.estilo)}"></label>
+        ${p.tipo === "jingle" ? `<p class="note">La voz de Gemini lee la letra. Para que se cante, usa el prompt de música en tu generador musical.</p>` : ""}
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">📱 Kit de redes</span><button class="btn btn-green btn-sm" data-act="kit">Copiar todo</button></div>
+        <label class="field"><span>Título viral</span>${areaCopia("kit.titulo", r.kit.titulo, 1)}</label>
+        <label class="field"><span>Descripción</span>${areaCopia("kit.descripcion", r.kit.descripcion, 3)}</label>
+        <label class="field"><span>Hashtags</span>${areaCopia("kit.hashtags", (r.kit.hashtags || []).join(" "), 2)}</label>
+        <label class="field"><span>Comentario fijado</span>${areaCopia("kit.comentario_fijado", r.kit.comentario_fijado, 1)}</label>
+      </div>`;
+
+    el.innerHTML = h;
+    eventosResultado();
+  }
+
+  function eventosResultado() {
+    const p = actual;
+    const r = p.resultado;
+    const el = $("#res");
+    el.addEventListener("input", (e) => {
+      const k = e.target.dataset.k;
+      if (!k) return;
+      let v = e.target.value;
+      if (k === "kit.hashtags") v = v.split(/\s+/).filter(Boolean);
+      setPath(r, k, v);
+      if (k === "titulo") p.titulo = v;
+      if (e.target.dataset.wc) {
+        const i = Number(e.target.dataset.wc);
+        const pl = E.plan(p);
+        const max = pl.porEscena[i] || 0;
+        const n = E.contar(v);
+        const c = $("#wc-" + i);
+        c.textContent = `${n}/${max} palabras`;
+        c.classList.toggle("chip-red", n > max);
+      }
+      p.actualizado = Date.now();
+      guardarLuego();
+    });
+    el.addEventListener("click", (e) => {
+      const c = e.target.closest("[data-copy]");
+      if (c) {
+        const v = getPath(r, c.dataset.copy);
+        copiar(Array.isArray(v) ? v.join(" ") : String(v || ""));
+        return;
+      }
+      const a = e.target.closest("[data-act]");
+      if (!a) return;
+      const b = S.brand(p.marcaId);
+      switch (a.dataset.act) {
+        case "veoAll": copiar(E.prompsVeoTexto(r), `${r.escenas.length} prompts copiados ✓`); break;
+        case "ficha": descargar(`${slug(r.titulo)}-ficha.txt`, E.ficha(p, b)); break;
+        case "srt": descargar(`${slug(r.titulo)}.srt`, E.srtEscenas(r)); break;
+        case "kit": copiar(E.kitTexto(r) + (r.kit.comentario_fijado ? `\n\nComentario fijado: ${r.kit.comentario_fijado}` : ""), "Kit copiado ✓"); break;
+        case "tts": copiar(`Style: ${r.voz.estilo || ""}\nVoice: ${(b && b.voz && b.voz.voice) || "Kore"}\n\n${E.textoHablado(r, p.tipo)}`, "Directiva de voz copiada ✓"); break;
+      }
+    });
+  }
+
+  /* =========================================================
+     VOZ
+     ========================================================= */
+  async function vVoz(id) {
+    const p = (id && S.project(id)) || (actual && actual.id ? actual : null) || S.state.projects[0] || null;
+    const b = p ? S.brand(p.marcaId) : null;
+    const cfg = (p && p.vozConfig) || {};
+    let voice = cfg.voice || (b && b.voz && b.voz.voice) || "Kore";
+    const estilo = cfg.estilo || (p && p.resultado && p.resultado.voz.estilo) || (b && b.voz && b.voz.estilo) || "";
+    const texto = (p && p.vozTexto) || (p && p.resultado ? E.textoHablado(p.resultado, p.tipo) : "");
+    const wps = S.state.settings.wps;
+
+    view.innerHTML = `
+      <div class="page-head">
+        <div><span class="eyebrow">Constructor de voces</span><h1>Voz y locución</h1><p>Genera la voz con Gemini, guarda tus tomas y úsalas en el ensamblador.</p></div>
+        <div class="btn-row">${selectorProyecto(p && p.id, false)}</div>
+      </div>
+      <div class="grid-2">
+        <div class="sticky">
+          <div class="card">
+            <div class="card-head"><span class="card-title">Texto a locutar</span><span class="chip" id="vCount"></span></div>
+            <textarea id="vTexto" rows="9" placeholder="Escribe o genera un guion en la sección Guiones.">${esc(texto)}</textarea>
+            <p class="small muted" style="margin-top:6px">Escribe EN MAYÚSCULAS para enfatizar. Pausas: <span class="mono">&lt;short pause&gt;</span> · Risa: <span class="mono">&lt;laugh&gt;</span></p>
+            ${p && p.vozTexto ? `<button class="btn btn-ghost btn-sm" id="vReset" style="margin-top:8px">Volver al texto del guion</button>` : ""}
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Voz</span><span class="chip chip-violet" id="vSel">${esc(voice)}</span></div>
+            <div class="voices">${G.VOCES.map(([n, d]) => `<button type="button" class="voice ${n === voice ? "on" : ""}" data-voice="${n}"><b>${n}</b><small>${d}</small></button>`).join("")}</div>
+            <label class="field" style="margin-top:12px"><span>Estilo de interpretación (corto, en inglés)</span>
+              <input type="text" id="vEstilo" value="${esc(estilo)}" placeholder="Ej: Warm, confident, smiling radio delivery"></label>
+            <div class="btn-stack">
+              <button class="btn btn-violet btn-block" id="vGen" ${p ? "" : "disabled"}>🎙️ Generar voz con Gemini</button>
+              <div class="row">
+                <button class="btn btn-ghost btn-sm" id="vNav">▶ Escuchar borrador</button>
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">⬆ Subir audio propio<input type="file" id="vUp" accept="audio/*" hidden></label>
+              </div>
+            </div>
+            ${p ? "" : `<p class="note warn" style="margin-top:12px">Crea o elige un proyecto para guardar las tomas.</p>`}
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Tomas guardadas</span><span class="muted small">La marcada en verde se usa en el ensamblador</span></div>
+            <div class="list" id="tomas"><p class="muted small">Cargando…</p></div>
+          </div>
+          ${p && p.tipo === "jingle" && p.resultado && p.resultado.prompt_musica ? `
+          <div class="card">
+            <div class="card-head"><span class="card-title">🎼 Jingle cantado</span><button class="btn btn-green btn-sm" id="vMus">Copiar prompt de música</button></div>
+            <p class="muted small">La voz de Gemini habla, no canta. Para la versión cantada, pega el prompt de música en tu generador musical y sube aquí el resultado con “Subir audio propio”.</p>
+          </div>` : ""}
+        </div>
+      </div>`;
+
+    const cuenta = () => {
+      const n = E.contar($("#vTexto").value);
+      $("#vCount").textContent = `${n} palabras · ~${Math.round(n / wps)} s`;
+    };
+    cuenta();
+    $("#pSel").addEventListener("change", (e) => e.target.value && ir("#/voz/" + e.target.value));
+    $("#vTexto").addEventListener("input", () => {
+      cuenta();
+      if (p) { p.vozTexto = $("#vTexto").value; guardarLuego(p); }
+    });
+    const rs = $("#vReset");
+    if (rs) rs.addEventListener("click", () => { delete p.vozTexto; S.tocar(p); vVoz(p.id); });
+    $$("[data-voice]").forEach((v) => v.addEventListener("click", () => {
+      voice = v.dataset.voice;
+      $$("[data-voice]").forEach((x) => x.classList.toggle("on", x === v));
+      $("#vSel").textContent = voice;
+      if (p) { p.vozConfig = { voice, estilo: $("#vEstilo").value }; S.tocar(p); }
+    }));
+    $("#vEstilo").addEventListener("input", () => { if (p) { p.vozConfig = { voice, estilo: $("#vEstilo").value }; guardarLuego(p); } });
+    const mus = $("#vMus");
+    if (mus) mus.addEventListener("click", () => copiar(p.resultado.prompt_musica, "Prompt de música copiado ✓"));
+
+    $("#vNav").addEventListener("click", () => {
+      const t = $("#vTexto").value.replace(/<[^>]+>/g, " ");
+      if (!t.trim()) return toast("No hay texto para escuchar.");
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(t);
+      const idi = ((p && p.idioma) || "español").toLowerCase();
+      u.lang = idi.startsWith("ingl") || idi.startsWith("en") ? "en-US" : idi.startsWith("portu") ? "pt-BR" : "es-CO";
+      speechSynthesis.speak(u);
+      toast("Borrador con la voz del navegador (solo para revisar ritmo).");
+    });
+
+    $("#vGen").addEventListener("click", async (e) => {
+      const t = $("#vTexto").value.trim();
+      if (!t) return toast("Escribe el texto a locutar.", "error");
+      if (!S.state.settings.apiKey) return toast("Agrega tu API key de Gemini en Ajustes.", "error");
+      const btn = e.currentTarget;
+      cargando(btn, true, "Generando voz…");
+      try {
+        const blob = await G.voz(t, voice, $("#vEstilo").value.trim());
+        await guardarToma(p, blob, { voice, estilo: $("#vEstilo").value.trim(), origen: "Gemini" });
+        toast("Toma de voz lista ✓", "ok");
+      } catch (err) {
+        toast(err.message, "error");
+      } finally {
+        cargando(btn, false);
+      }
+    });
+    $("#vUp").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f || !p) return;
+      await guardarToma(p, f, { voice: f.name, estilo: "Archivo propio", origen: "Subido" });
+      toast("Audio agregado ✓", "ok");
+    });
+
+    pintarTomas(p);
+  }
+
+  async function guardarToma(p, blob, meta) {
+    const key = `${p.id}__voz__${Date.now()}`;
+    try {
+      const r = await VS.media.put(key, Object.assign({ blob, fecha: Date.now() }, meta));
+      if (r && r.motivo === "grande") toast("El audio pesa más de 4.5 MB: quedó guardado solo en este equipo. Descárgalo para tenerlo en otros.", "error");
+    } catch (e) {
+      toast("El audio quedó en este equipo, pero no se pudo subir a la nube: " + e.message, "error");
+    }
+    p.vozActiva = key;
+    if (p.estado === "guion") p.estado = "produccion";
+    S.upsertProject(p);
+    pintarTomas(p);
+  }
+
+  async function pintarTomas(p) {
+    const cont = $("#tomas");
+    if (!cont) return;
+    if (!p) { cont.innerHTML = `<p class="muted small">Sin proyecto.</p>`; return; }
+    let keys = [];
+    try { keys = (await VS.media.keys(p.id + "__voz__")).sort().reverse(); } catch (e) { /* */ }
+    if (!keys.length) { cont.innerHTML = `<p class="muted small">Todavía no hay tomas. Genera la voz o sube un audio.</p>`; return; }
+    const items = (await Promise.all(keys.map(async (k) => [k, await VS.media.get(k)]))).filter(([, t]) => t && t.blob);
+    cont.innerHTML = items.map(([k, t]) => `
+      <div class="take ${p.vozActiva === k ? "on" : ""}">
+        <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center">
+          <span><b>${esc(t.voice)}</b> <span class="muted small">· ${esc(t.estilo || "")} · ${new Date(t.fecha).toLocaleString("es-CO", { dateStyle: "short", timeStyle: "short" })}</span></span>
+          <span class="btn-row">
+            ${p.vozActiva === k ? `<span class="chip chip-green">En uso</span>` : `<button class="btn btn-ghost btn-sm" data-usar="${k}">Usar en video</button>`}
+            <button class="btn btn-ghost btn-sm" data-radio="${k}">📻 Mezclar para radio</button>
+            <button class="btn btn-ghost btn-sm" data-bajar="${k}">Descargar</button>
+            <button class="btn btn-red btn-sm" data-borrar="${k}">✕</button>
+          </span>
+        </div>
+        <audio controls preload="metadata" src="${URL.createObjectURL(t.blob)}"></audio>
+      </div>`).join("");
+    $$("[data-usar]", cont).forEach((b) => b.addEventListener("click", () => { p.vozActiva = b.dataset.usar; S.tocar(p); pintarTomas(p); }));
+    $$("[data-bajar]", cont).forEach((b) => b.addEventListener("click", async () => {
+      const t = await VS.media.get(b.dataset.bajar);
+      const ext = (t.blob.type.split("/")[1] || "wav").replace("mpeg", "mp3").split(";")[0];
+      descargar(`${slug(p.titulo)}-voz-${slug(t.voice)}.${ext}`, t.blob);
+    }));
+    $$("[data-radio]", cont).forEach((b) => b.addEventListener("click", () => mezclarRadio(p, b.dataset.radio)));
+    $$("[data-borrar]", cont).forEach((b) => b.addEventListener("click", async () => {
+      if (!confirm("¿Borrar esta toma?")) return;
+      await VS.media.del(b.dataset.borrar);
+      if (p.vozActiva === b.dataset.borrar) { delete p.vozActiva; S.tocar(p); }
+      pintarTomas(p);
+    }));
+  }
+
+  /* ---------- Mezcla para radio ---------- */
+  let ultimaCama = null; // la última música elegida se recuerda mientras la app está abierta
+
+  function mezclarRadio(p, key) {
+    const m = modal(`
+      <div class="card-head"><h2>📻 Mezclar para radio</h2><button class="btn btn-ghost btn-sm" data-close>Cerrar</button></div>
+      <p class="muted small" style="margin-bottom:14px">Une esta voz con una cama musical: la música entra, baja mientras se habla y vuelve a subir al final. Sale un WAV estéreo normalizado, listo para emisora.</p>
+      <div class="field"><span>Cama musical</span>
+        <div class="row" style="grid-template-columns:1fr auto">
+          <span class="muted small" id="rNom" style="align-self:center">${ultimaCama ? esc(ultimaCama.name) : "Sin música (solo voz limpia)"}</span>
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer">Elegir audio<input type="file" id="rMus" accept="audio/*" hidden></label>
+        </div>
+      </div>
+      <div class="row">
+        <label class="field"><span>Entrada musical (s)</span><input type="number" id="rIn" min="0" max="10" step="0.5" value="2"></label>
+        <label class="field"><span>Salida musical (s)</span><input type="number" id="rOut" min="0" max="15" step="0.5" value="3"></label>
+      </div>
+      <div class="vol"><span>Música alta</span><input type="range" id="rAlto" min="0.1" max="1" step="0.05" value="0.8"><span id="rAltoT">80%</span></div>
+      <div class="vol"><span>Bajo la voz</span><input type="range" id="rBajo" min="0" max="0.6" step="0.02" value="0.22"><span id="rBajoT">22%</span></div>
+      <div class="vol"><span>Voz</span><input type="range" id="rVoz" min="0.5" max="1.5" step="0.05" value="1"><span id="rVozT">100%</span></div>
+      <div id="rRes" style="margin-top:12px"></div>
+      <div class="btn-row" style="justify-content:flex-end;margin-top:14px"><button class="btn btn-gold" id="rOk">Crear mezcla</button></div>`);
+    const q = (s) => $(s, m.el);
+    [["#rAlto", "#rAltoT"], ["#rBajo", "#rBajoT"], ["#rVoz", "#rVozT"]].forEach(([a, b]) =>
+      q(a).addEventListener("input", () => (q(b).textContent = Math.round(q(a).value * 100) + "%")));
+    q("#rMus").addEventListener("change", (e) => {
+      if (e.target.files[0]) { ultimaCama = e.target.files[0]; q("#rNom").textContent = ultimaCama.name; }
+    });
+    q("#rOk").addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      cargando(btn, true, "Mezclando…");
+      try {
+        const t = await VS.media.get(key);
+        const { blob, duracion } = await VS.radio.mezclar({
+          voz: t.blob, musica: ultimaCama, intro: q("#rIn").value, outro: q("#rOut").value,
+          volAlto: q("#rAlto").value, volBajo: q("#rBajo").value, volVoz: q("#rVoz").value,
+        });
+        await guardarToma(p, blob, { voice: "Mezcla radio", estilo: `${t.voice}${ultimaCama ? " + " + ultimaCama.name : ""}`, origen: "Mezcla" });
+        q("#rRes").innerHTML = `<p class="note">Mezcla lista (${fmtSeg(duracion)}). Quedó guardada en las tomas.</p><audio controls style="width:100%;margin-top:8px" src="${URL.createObjectURL(blob)}"></audio>`;
+        btn.outerHTML = `<button class="btn btn-green" id="rDl">Descargar WAV</button>`;
+        q("#rDl").addEventListener("click", () => descargar(`${slug(p.titulo)}-radio.wav`, blob));
+        toast("Mezcla para radio lista ✓", "ok");
+      } catch (err) {
+        toast("No se pudo mezclar: " + err.message, "error");
+        cargando(btn, false);
+      }
+    });
+  }
+
+  /* =========================================================
+     ENSAMBLADOR
+     ========================================================= */
+  function asm() {
+    if (!VS.asm) {
+      const cv = document.createElement("canvas");
+      VS.asm = { cv, inst: new VS.Ensamblador(cv), proyectoId: null, subsOn: true, porGrupo: 4, texto: "", vozKey: null };
+    }
+    return VS.asm;
+  }
+
+  function rehacerSubs() {
+    const A = asm(), inst = A.inst;
+    const dur = inst.duracionVoz() || inst.linea().total;
+    inst.subs = A.subsOn && A.texto ? E.subtitulos(A.texto.replace(/<[^>]+>/g, " "), dur, A.porGrupo) : [];
+    inst.dibujar(0);
+    const info = $("#aInfo");
+    if (info) {
+      const { total } = inst.linea();
+      info.textContent = total ? `Duración: ${fmtSeg(total)} · ${inst.items.length} elementos${inst.voz ? " · con voz" : ""}` : "Sin contenido aún";
+    }
+  }
+
+  async function cargarProyectoEnAsm(p) {
+    const A = asm(), inst = A.inst;
+    A.proyectoId = p ? p.id : null;
+    if (!p) return;
+    const b = S.brand(p.marcaId);
+    A.texto = p.resultado ? E.textoHablado(p.resultado, p.tipo) : "";
+    inst.marca = b ? b.nombre : "";
+    if (E.TIPOS[p.tipo].video && VS.FORMATOS[p.formato]) inst.setFormato(p.formato);
+    A.vozKey = null;
+    await inst.setAudio("voz", null);
+    if (p.vozActiva) {
+      try {
+        const t = await VS.media.get(p.vozActiva);
+        if (t) { await inst.setAudio("voz", t.blob); A.vozKey = p.vozActiva; }
+      } catch (e) { /* */ }
+    }
+  }
+
+  async function vEns(id) {
+    const A = asm(), inst = A.inst;
+    const p = (id && S.project(id)) || (A.proyectoId && S.project(A.proyectoId)) || null;
+    if (p && p.id !== A.proyectoId) await cargarProyectoEnAsm(p);
+    const mime = VS.Ensamblador.tipoGrabacion();
+    const st = inst.estilo;
+
+    view.innerHTML = `
+      <div class="page-head">
+        <div><span class="eyebrow">Ensamblador de muestras</span><h1>Videos de muestra</h1><p>Une tus clips de Flow o imágenes con la voz, la música y subtítulos dinámicos.</p></div>
+        <div class="btn-row">${selectorProyecto(p && p.id, false)}</div>
+      </div>
+      <div class="grid-2">
+        <div class="sticky">
+          <div class="card">
+            <div class="card-head"><span class="card-title">1 · Clips e imágenes</span><span class="muted small">en orden</span></div>
+            <label class="drop" id="aDrop">
+              <input type="file" id="aFiles" accept="video/*,image/*" multiple>
+              <b>Arrastra aquí tus clips de Veo o imágenes</b><br><span class="small">o haz clic para elegir · MP4, MOV, JPG, PNG</span>
+            </label>
+            <div class="clips" id="aClips"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">2 · Audio</span></div>
+            <div class="field"><span>Voz</span>
+              <div class="row" style="grid-template-columns:1fr auto">
+                <select id="aVoz"><option value="">Sin voz</option></select>
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">Subir<input type="file" id="aVozUp" accept="audio/*" hidden></label>
+              </div>
+            </div>
+            <div class="field"><span>Música de fondo</span>
+              <div class="row" style="grid-template-columns:1fr auto">
+                <span class="muted small" id="aMusNom" style="align-self:center">${inst.musica ? "Música cargada ✓" : "Sin música"}</span>
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">Elegir<input type="file" id="aMus" accept="audio/*" hidden></label>
+              </div>
+            </div>
+            <div class="vol"><span>Voz</span><input type="range" id="aVV" min="0" max="1.5" step="0.05" value="${inst.volVoz}"><span id="aVVt">${Math.round(inst.volVoz * 100)}%</span></div>
+            <div class="vol"><span>Música</span><input type="range" id="aVM" min="0" max="1" step="0.02" value="${inst.volMusica}"><span id="aVMt">${Math.round(inst.volMusica * 100)}%</span></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">3 · Subtítulos</span><label class="check"><input type="checkbox" id="aSubOn" ${A.subsOn ? "checked" : ""}> Activar</label></div>
+            <label class="field"><span>Texto (se sincroniza con la voz)</span><textarea id="aTexto" rows="4">${esc(A.texto)}</textarea></label>
+            <div class="row">
+              <label class="field"><span>Posición</span><select id="aPos">${opciones([["inferior", "Tercio inferior"], ["centro", "Centro"], ["superior", "Superior"]], st.posicion)}</select></label>
+              <label class="field"><span>Caja</span><select id="aCaja">${opciones([["glass", "Cristal"], ["solida", "Sólida"], ["ninguna", "Sin caja"]], st.caja)}</select></label>
+            </div>
+            <div class="row-3">
+              <label class="field"><span>Resaltado</span><input type="color" id="aColor" value="${st.color}" style="height:40px;padding:4px"></label>
+              <label class="field"><span>Tamaño</span><select id="aTam">${opciones([[0.8, "Pequeño"], [1, "Normal"], [1.25, "Grande"]], st.tam)}</select></label>
+              <label class="field"><span>Palabras</span><select id="aGrupo">${opciones([[2, "2"], [3, "3"], [4, "4"], [6, "6"]], A.porGrupo)}</select></label>
+            </div>
+            <label class="check"><input type="checkbox" id="aMay" ${st.mayus ? "checked" : ""}> MAYÚSCULAS</label>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">4 · Video</span></div>
+            <div class="row">
+              <label class="field"><span>Formato</span><select id="aFmt">${opciones([["9:16", "9:16 Reels/TikTok"], ["16:9", "16:9 YouTube"], ["1:1", "1:1"], ["4:5", "4:5 Feed"]], inst.formato)}</select></label>
+              <label class="field"><span>Calidad</span><select id="aQ">${opciones([[0.6667, "720p (rápido)"], [1, "1080p"]], inst.escala)}</select></label>
+            </div>
+            <label class="field"><span>Nombre en pantalla</span><input type="text" id="aMarca" value="${esc(inst.marca)}" placeholder="Opcional"></label>
+            <div class="checks">
+              <label class="check"><input type="checkbox" id="aAjus" ${inst.ajustar ? "checked" : ""}> Repartir clips en la duración de la voz</label>
+              <label class="check"><input type="checkbox" id="aMuestra" ${inst.muestra ? "checked" : ""}> Marca de agua “MUESTRA”</label>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Previsualización</span><span class="muted small mono" id="aInfo"></span></div>
+            <div class="stage" id="aStage"></div>
+            <div class="timebar"><div id="aBar"></div></div>
+            <div class="btn-row" style="justify-content:space-between">
+              <div class="btn-row">
+                <button class="btn btn-ghost" id="aPlay">▶ Reproducir</button>
+                <button class="btn btn-ghost" id="aStop">■ Detener</button>
+                <span class="mono muted" id="aTime" style="align-self:center">0:00</span>
+              </div>
+              <div class="btn-row">
+                <button class="btn btn-ghost btn-sm" id="aSrt">Subtítulos .srt</button>
+                <button class="btn btn-gold" id="aExp">⚡ Exportar video</button>
+              </div>
+            </div>
+            <p class="note" style="margin-top:12px">La exportación se graba en tiempo real: un video de 45 s tarda unos 45 s. Mantén esta pestaña visible mientras termina. Formato de salida en este navegador: <b>${mime ? (mime.includes("mp4") ? "MP4" : "WebM") : "no disponible"}</b>.</p>
+          </div>
+        </div>
+      </div>`;
+
+    $("#aStage").appendChild(A.cv);
+    pintarClips();
+    await opcionesVoz(p);
+    rehacerSubs();
+    eventosEns(p);
+  }
+
+  async function opcionesVoz(p) {
+    const A = asm();
+    const sel = $("#aVoz");
+    if (!sel) return;
+    let html = `<option value="">Sin voz</option>`;
+    if (p) {
+      try {
+        const keys = (await VS.media.keys(p.id + "__voz__")).sort().reverse();
+        for (const k of keys) {
+          const t = await VS.media.get(k);
+          html += `<option value="${k}">${esc(t.voice)} · ${new Date(t.fecha).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}</option>`;
+        }
+      } catch (e) { /* */ }
+    }
+    if (A.vozKey === "archivo") html += `<option value="archivo">Archivo subido</option>`;
+    sel.innerHTML = html;
+    sel.value = A.vozKey || "";
+  }
+
+  function pintarClips() {
+    const inst = asm().inst;
+    const cont = $("#aClips");
+    if (!cont) return;
+    cont.innerHTML = inst.items.map((it, i) => `
+      <div class="clip">
+        <div class="th">${it.tipo === "imagen" ? `<img src="${it.url}" alt="">` : `<video src="${it.url}#t=0.5" muted preload="metadata"></video>`}</div>
+        <div class="nm"><b>${i + 1}. ${esc(it.nombre)}</b><small>${it.tipo} · ${it.tipo === "video" ? it.dur.toFixed(1) + " s" : ""}</small>
+          ${it.tipo === "imagen" ? `<input type="number" min="1" max="30" step="0.5" value="${it.dur}" data-dur="${i}" style="width:70px;padding:3px 6px;font-size:.8rem;margin-left:4px"> s` : ""}
+        </div>
+        <button data-up="${i}" title="Subir">↑</button><button data-down="${i}" title="Bajar">↓</button><button data-rm="${i}" title="Quitar">✕</button>
+      </div>`).join("");
+  }
+
+  function eventosEns(p) {
+    const A = asm(), inst = A.inst;
+    $("#pSel").addEventListener("change", async (e) => {
+      const np = S.project(e.target.value);
+      await cargarProyectoEnAsm(np);
+      ir("#/ensamblador/" + (np ? np.id : ""));
+    });
+
+    const agregar = async (files) => {
+      for (const f of files) {
+        try { await inst.agregarArchivo(f); } catch (err) { toast(err.message, "error"); }
+      }
+      pintarClips();
+      rehacerSubs();
+    };
+    $("#aFiles").addEventListener("change", (e) => agregar(Array.from(e.target.files)).then(() => (e.target.value = "")));
+    const drop = $("#aDrop");
+    ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+    ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+    drop.addEventListener("drop", (e) => agregar(Array.from(e.dataTransfer.files)));
+
+    $("#aClips").addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      if (b.dataset.up) inst.mover(Number(b.dataset.up), -1);
+      if (b.dataset.down) inst.mover(Number(b.dataset.down), 1);
+      if (b.dataset.rm) inst.quitar(Number(b.dataset.rm));
+      pintarClips();
+      rehacerSubs();
+    });
+    $("#aClips").addEventListener("change", (e) => {
+      if (e.target.dataset.dur) {
+        inst.items[Number(e.target.dataset.dur)].dur = Math.max(1, Number(e.target.value) || 4);
+        rehacerSubs();
+      }
+    });
+
+    $("#aVoz").addEventListener("change", async (e) => {
+      const k = e.target.value;
+      if (!k) { await inst.setAudio("voz", null); A.vozKey = null; }
+      else if (k !== "archivo") {
+        const t = await VS.media.get(k);
+        await inst.setAudio("voz", t.blob);
+        A.vozKey = k;
+        if (p) { p.vozActiva = k; S.tocar(p); }
+      }
+      rehacerSubs();
+    });
+    $("#aVozUp").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      if (p) {
+        await guardarToma(p, f, { voice: f.name, estilo: "Archivo propio", origen: "Subido" });
+        await opcionesVoz(p);
+        $("#aVoz").value = p.vozActiva;
+        await inst.setAudio("voz", f);
+        A.vozKey = p.vozActiva;
+      } else {
+        await inst.setAudio("voz", f);
+        A.vozKey = "archivo";
+        await opcionesVoz(null);
+      }
+      rehacerSubs();
+      toast("Voz cargada ✓", "ok");
+    });
+    $("#aMus").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      await inst.setAudio("musica", f);
+      $("#aMusNom").textContent = f.name;
+    });
+    $("#aVV").addEventListener("input", (e) => { inst.volVoz = Number(e.target.value); $("#aVVt").textContent = Math.round(inst.volVoz * 100) + "%"; });
+    $("#aVM").addEventListener("input", (e) => { inst.volMusica = Number(e.target.value); $("#aVMt").textContent = Math.round(inst.volMusica * 100) + "%"; });
+
+    $("#aSubOn").addEventListener("change", (e) => { A.subsOn = e.target.checked; rehacerSubs(); });
+    $("#aTexto").addEventListener("input", (e) => { A.texto = e.target.value; rehacerSubs(); });
+    $("#aPos").addEventListener("change", (e) => { inst.estilo.posicion = e.target.value; inst.dibujar(0); });
+    $("#aCaja").addEventListener("change", (e) => { inst.estilo.caja = e.target.value; inst.dibujar(0); });
+    $("#aColor").addEventListener("input", (e) => { inst.estilo.color = e.target.value; inst.dibujar(0); });
+    $("#aTam").addEventListener("change", (e) => { inst.estilo.tam = Number(e.target.value); inst.dibujar(0); });
+    $("#aGrupo").addEventListener("change", (e) => { A.porGrupo = Number(e.target.value); rehacerSubs(); });
+    $("#aMay").addEventListener("change", (e) => { inst.estilo.mayus = e.target.checked; inst.dibujar(0); });
+    $("#aFmt").addEventListener("change", (e) => { inst.setFormato(e.target.value); });
+    $("#aQ").addEventListener("change", (e) => { inst.setFormato(inst.formato, Number(e.target.value)); });
+    $("#aMarca").addEventListener("input", (e) => { inst.marca = e.target.value; inst.dibujar(0); });
+    $("#aAjus").addEventListener("change", (e) => { inst.ajustar = e.target.checked; rehacerSubs(); });
+    $("#aMuestra").addEventListener("change", (e) => { inst.muestra = e.target.checked; inst.dibujar(0); });
+
+    inst.alAvanzar = (t, total) => {
+      const bar = $("#aBar"), tm = $("#aTime");
+      if (bar) bar.style.width = Math.min(100, (t / total) * 100) + "%";
+      if (tm) tm.textContent = `${fmtSeg(t)} / ${fmtSeg(total)}`;
+    };
+    inst.alTerminar = () => { const bar = $("#aBar"); if (bar) bar.style.width = "100%"; };
+    $("#aPlay").addEventListener("click", () => inst.reproducir().catch((err) => toast(err.message, "error")));
+    $("#aStop").addEventListener("click", () => { inst.detener(); $("#aBar").style.width = "0"; });
+    $("#aSrt").addEventListener("click", () => {
+      if (!inst.subs.length) return toast("No hay subtítulos: agrega texto y activa los subtítulos.", "error");
+      descargar(`${slug(p ? p.titulo : "video")}.srt`, E.srt(inst.subs));
+    });
+    $("#aExp").addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      if (!inst.linea().total) return toast("Agrega clips, imágenes o voz primero.", "error");
+      cargando(btn, true, "Grabando…");
+      try {
+        const { blob, ext } = await inst.exportar();
+        descargar(`${slug(p ? p.titulo : "muestra")}${inst.muestra ? "-muestra" : ""}.${ext}`, blob);
+        if (p && (p.estado === "guion" || p.estado === "produccion")) { p.estado = "listo"; S.upsertProject(p); }
+        toast("Video exportado ✓", "ok");
+      } catch (err) {
+        toast(err.message || "No se pudo exportar.", "error");
+      } finally {
+        cargando(btn, false);
+      }
+    });
+  }
+
+  /* =========================================================
+     MARCAS
+     ========================================================= */
+  let buscaEmpresa = "";
+  function vMarcas() {
+    const B = S.state.brands;
+    const q = buscaEmpresa.toLowerCase();
+    const lista = B.filter((b) => !q || (b.nombre + " " + (b.nicho || "")).toLowerCase().includes(q)).sort((x, y) => x.nombre.localeCompare(y.nombre));
+    const cuenta = (b, f) => S.state.projects.filter((p) => p.marcaId === b.id && (!f || f(p))).length;
+    view.innerHTML = `
+      <div class="page-head">
+        <div><span class="eyebrow">Empresas que asesoras</span><h1>Empresas y voces</h1><p>Sin límite: cada empresa con sus productos, su estética y su voz. Todo guion sale con su identidad.</p></div>
+        <div class="btn-row">
+          ${B.length > 4 ? `<input type="text" id="bBusca" placeholder="Buscar empresa…" value="${esc(buscaEmpresa)}" style="width:200px">` : ""}
+          <button class="btn btn-gold" id="bNueva">＋ Nueva empresa</button>
+        </div>
+      </div>
+      ${lista.length ? `<div class="brands">${lista.map((b) => `
+        <div class="card bcard" style="--c:${esc(b.color || "#f5a524")}">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+            <h2>${esc(b.nombre)}</h2><button class="btn btn-ghost btn-sm" data-edit="${b.id}">Editar</button>
+          </div>
+          <p>${esc(b.nicho || "")}${b.productos ? ` · ${esc(b.productos.slice(0, 80))}${b.productos.length > 80 ? "…" : ""}` : ""}</p>
+          <div class="chips" style="margin-bottom:12px">
+            <span class="chip chip-violet">🎙️ ${esc((b.voz && b.voz.voice) || "Kore")}</span>
+            <span class="chip chip-gold">${cuenta(b)} piezas</span>
+            <span class="chip chip-green">${cuenta(b, (p) => p.estado === "listo" || p.estado === "publicado")} listas</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn-gold btn-sm" href="#/auto/${b.id}">⚡ Producir</a>
+            <button class="btn btn-ghost btn-sm" data-ver="${b.id}">Ver piezas</button>
+            <button class="btn btn-ghost btn-sm" data-zip="${b.id}">📦 Paquete</button>
+          </div>
+        </div>`).join("")}</div>`
+      : B.length ? `<p class="muted">Ninguna empresa coincide con “${esc(buscaEmpresa)}”.</p>`
+      : `<div class="card empty"><div class="big">🏷️</div><h2>Crea tu primera empresa</h2><p>Define nicho, productos, estética y voz una vez, y todos los guiones saldrán coherentes.</p></div>`}`;
+    $("#bNueva").addEventListener("click", () => editarMarca());
+    const bu = $("#bBusca");
+    if (bu) bu.addEventListener("input", (e) => {
+      buscaEmpresa = e.target.value;
+      const pos = e.target.selectionStart;
+      vMarcas();
+      const n = $("#bBusca");
+      n.focus();
+      n.setSelectionRange(pos, pos);
+    });
+    $$("[data-edit]").forEach((c) => c.addEventListener("click", () => editarMarca(S.brand(c.dataset.edit))));
+    $$("[data-ver]").forEach((c) => c.addEventListener("click", () => { filtroEmpresa = c.dataset.ver; ir("#/panel"); }));
+    $$("[data-zip]").forEach((c) => c.addEventListener("click", () => paqueteEmpresa(S.brand(c.dataset.zip), c)));
+  }
+
+  function editarMarca(b) {
+    const nueva = !b;
+    b = b ? JSON.parse(JSON.stringify(b)) : { nombre: "", nicho: "", publico: "", idioma: "español", estetica: "", tono: "", voz: { voice: "Kore", estilo: "", arquetipo: "" }, cta: "", hashtags: "", color: "#f5a524" };
+    b.voz = b.voz || {};
+    const m = modal(`
+      <div class="card-head"><h2>${nueva ? "Nueva empresa" : "Editar empresa"}</h2><button class="btn btn-ghost btn-sm" data-close>Cerrar</button></div>
+      <div class="row">
+        <label class="field"><span>Nombre</span><input type="text" id="bN" value="${esc(b.nombre)}" placeholder="Nombre de la empresa"></label>
+        <label class="field"><span>Color</span><input type="color" id="bC" value="${esc(b.color || "#f5a524")}" style="height:42px;padding:4px"></label>
+      </div>
+      <div class="row">
+        <label class="field"><span>Nicho</span><input type="text" id="bNi" value="${esc(b.nicho)}" placeholder="Ej: restaurante, velas artesanales"></label>
+        <label class="field"><span>Idioma</span><input type="text" id="bI" value="${esc(b.idioma)}"></label>
+      </div>
+      <label class="field"><span>Productos o servicios</span><textarea id="bPr" rows="2" placeholder="Ej: cafés, desayunos, picadas y comidas rápidas">${esc(b.productos)}</textarea></label>
+      <label class="field"><span>Diferenciales y ofertas</span><input type="text" id="bOf" value="${esc(b.oferta)}" placeholder="Ej: domicilio gratis, 2x1 los viernes"></label>
+      <div class="row">
+        <label class="field"><span>Contacto para pedidos</span><input type="text" id="bCo" value="${esc(b.contacto)}" placeholder="Ej: WhatsApp 300 000 0000"></label>
+        <label class="field"><span>Público</span><input type="text" id="bP" value="${esc(b.publico)}" placeholder="A quién le hablas"></label>
+      </div>
+      <label class="field"><span>Estética visual (mejor en inglés, se usa en los prompts de Veo)</span><textarea id="bE" rows="3" placeholder="Ej: Warm tropical Pacific coast, golden hour, lush green palms, vibrant colors, cinematic">${esc(b.estetica)}</textarea></label>
+      <label class="field"><span>Tono de la comunicación</span><input type="text" id="bT" value="${esc(b.tono)}" placeholder="Ej: cálido, pícaro, cercano"></label>
+      <hr class="sep">
+      <div class="row">
+        <label class="field"><span>Arquetipo de voz</span><input type="text" id="bA" value="${esc(b.voz.arquetipo)}" placeholder="Ej: Cantadora del Pacífico"></label>
+        <label class="field"><span>Voz de Gemini</span><select id="bV">${opciones(G.VOCES.map(([n, d]) => [n, `${n} · ${d}`]), b.voz.voice || "Kore")}</select></label>
+      </div>
+      <label class="field"><span>Estilo de voz (corto, en inglés)</span><input type="text" id="bVE" value="${esc(b.voz.estilo)}" placeholder="Ej: Warm, rhythmic, playful with sensual pauses"></label>
+      <hr class="sep">
+      <label class="field"><span>Llamado a la acción por defecto</span><input type="text" id="bCta" value="${esc(b.cta)}" placeholder="Ej: Pide por WhatsApp"></label>
+      <label class="field"><span>Hashtags base</span><input type="text" id="bH" value="${esc(b.hashtags)}" placeholder="#marca #nicho"></label>
+      <div class="btn-row" style="justify-content:space-between;margin-top:6px">
+        ${nueva ? "<span></span>" : `<button class="btn btn-red btn-sm" id="bDel">Eliminar empresa</button>`}
+        <button class="btn btn-gold" id="bOk">Guardar empresa</button>
+      </div>`);
+    const v = (id) => $(id, m.el).value.trim();
+    $("#bOk", m.el).addEventListener("click", () => {
+      if (!v("#bN")) return toast("Ponle un nombre a la empresa.", "error");
+      Object.assign(b, {
+        nombre: v("#bN"), color: v("#bC"), nicho: v("#bNi"), idioma: v("#bI") || "español", publico: v("#bP"),
+        productos: v("#bPr"), oferta: v("#bOf"), contacto: v("#bCo"),
+        estetica: v("#bE"), tono: v("#bT"), cta: v("#bCta"), hashtags: v("#bH"),
+        voz: { arquetipo: v("#bA"), voice: v("#bV"), estilo: v("#bVE") },
+      });
+      S.upsertBrand(b);
+      m.cerrar();
+      toast("Empresa guardada ✓", "ok");
+      vMarcas();
+    });
+    const d = $("#bDel", m.el);
+    if (d) d.addEventListener("click", () => {
+      if (!confirm(`¿Eliminar la empresa “${b.nombre}”? Sus proyectos quedan sin empresa.`)) return;
+      S.deleteBrand(b.id);
+      m.cerrar();
+      vMarcas();
+    });
+  }
+
+  /* =========================================================
+     AJUSTES
+     ========================================================= */
+  function vAjustes() {
+    const s = S.state.settings;
+    view.innerHTML = `
+      <div class="page-head"><div><span class="eyebrow">Configuración</span><h1>Ajustes</h1><p>Nombre, acceso, conexión con Gemini y respaldos.</p></div>
+        <a class="btn btn-ghost" href="#/ayuda">❔ Ayuda</a></div>
+      <div class="grid-2" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+        <div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Tu estudio</span></div>
+            <label class="field"><span>Nombre de la aplicación</span><input type="text" id="sName" value="${esc(s.appName)}" maxlength="40"></label>
+            <div class="field"><span>Logo</span>
+              <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+                <span class="brand-icon ${s.logo ? "has-logo" : ""}" style="width:64px;height:64px">${logoHtml()}</span>
+                <div class="btn-row">
+                  <label class="btn btn-gold btn-sm" style="cursor:pointer">${s.logo ? "Cambiar logo" : "Subir logo"}<input type="file" id="sLogo" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden></label>
+                  ${s.logo ? `<button class="btn btn-ghost btn-sm" id="sLogoNo">Quitar</button>` : ""}
+                </div>
+              </div>
+            </div>
+            <p class="small muted">Nombre y logo se ven en el menú, en la pantalla de la clave y en la pestaña del navegador. Mejor una imagen cuadrada, PNG con fondo transparente. Viajan en el respaldo.</p>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Acceso y equipos</span></div>
+            ${S.cloud.on
+              ? `<p class="small" style="margin-bottom:12px"><span class="dot on" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px"></span>Estudio privado con contraseña. Tus empresas, guiones y voces se guardan en la nube de tu sitio y se ven igual en cualquier equipo donde entres.</p>
+                 <div class="btn-row"><button class="btn btn-ghost btn-sm" id="sSync">↻ Sincronizar ahora</button><button class="btn btn-red btn-sm" id="sSalir">Cerrar sesión en este equipo</button></div>
+                 <p class="small muted" style="margin-top:10px">Para cerrar la sesión en todos los equipos, cambia <span class="mono">STUDIO_PASSWORD</span> en Netlify.</p>`
+              : `<p class="small" style="margin-bottom:12px">Tus empresas y proyectos se guardan en este navegador y no salen de este equipo. Para pasarlos a otro equipo usa <b>Exportar respaldo</b> aquí y <b>Importar respaldo</b> allá.</p>
+                 <label class="field"><span>Clave de entrada en este equipo</span>
+                   <div class="row" style="grid-template-columns:1fr auto auto"><input type="password" id="sLock" placeholder="${leerLock() ? "Clave activa · escribe una nueva para cambiarla" : "Crea una clave"}" autocomplete="new-password"><button class="btn btn-gold btn-sm" id="sLockOk">Guardar</button>${leerLock() ? `<button class="btn btn-ghost btn-sm" id="sLockNo">Quitar</button>` : ""}</div>
+                 </label>
+                 <p class="small muted">Con clave, el estudio la pide cada vez que abres el navegador. Si la olvidas, borra los datos del sitio en el navegador (perderías lo no respaldado).</p>`}
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Gemini API</span><a class="btn btn-ghost btn-sm" href="${LINKS.llave}" target="_blank" rel="noopener">Obtener API key ↗</a></div>
+            <label class="field"><span>API key</span>
+              <div class="row" style="grid-template-columns:1fr auto"><input type="password" id="sKey" value="${esc(s.apiKey)}" placeholder="AIza…" autocomplete="off"><button class="btn btn-ghost btn-sm" id="sVer">Ver</button></div>
+            </label>
+            <div class="row">
+              <label class="field"><span>Modelo de texto</span><input type="text" id="sMT" value="${esc(s.modelText)}" list="lMT"></label>
+              <label class="field"><span>Modelo de voz</span><input type="text" id="sMV" value="${esc(s.modelTTS)}" list="lMV"></label>
+            </div>
+            <datalist id="lMT"><option value="gemini-3.8-flash"><option value="gemini-3.6-flash"><option value="gemini-3.5-flash-lite"><option value="gemini-4-argon"><option value="gemini-flash-latest"></datalist>
+            <datalist id="lMV"><option value="gemini-3.8-flash-tts"><option value="gemini-3.8-flash-lite-tts"><option value="gemini-3.1-flash-tts-preview"></datalist>
+            <div class="btn-row"><button class="btn btn-gold" id="sSave">Guardar</button><button class="btn btn-ghost" id="sTest">Probar conexión</button></div>
+            <p class="note" style="margin-top:12px">${S.cloud.on ? "La llave viaja a tus equipos dentro de tu estudio privado" : "La llave se guarda solo en este navegador"} y nunca va en los respaldos. Restríngela en Google Cloud a la dirección de tu sitio de Netlify.</p>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Producción</span></div>
+            <div class="row">
+              <label class="field"><span>Palabras por segundo</span><input type="number" id="sWps" min="1.5" max="4" step="0.1" value="${s.wps}"></label>
+              <label class="field"><span>Clip de Veo por defecto</span><select id="sClip">${opciones([[4, "4 s"], [6, "6 s"], [8, "8 s"], [10, "10 s"]], s.clip)}</select></label>
+            </div>
+            <label class="field"><span>Idioma de los prompts de video e imagen</span><select id="sLang">${opciones([["en", "Inglés (recomendado para Veo)"], ["es", "Español"]], s.promptLang)}</select></label>
+            <p class="small muted">Referencia: español narrado ≈ 2.3–2.6 palabras por segundo. Más alto = locución más rápida.</p>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Respaldo</span></div>
+            <p class="muted small" style="margin-bottom:12px">Tu trabajo vive en este navegador. Exporta un respaldo al terminar cada sesión: es el archivo que llevas a otro PC y tu copia de seguridad.</p>
+            <label class="check" style="margin-bottom:12px"><input type="checkbox" id="sConAudio" checked> Incluir voces y mezclas de radio</label>
+            <div class="btn-row">
+              <button class="btn btn-gold" id="sExp">⬇ Exportar respaldo</button>
+              <label class="btn btn-ghost" style="cursor:pointer">⬆ Importar respaldo<input type="file" id="sImp" accept="application/json,.json" hidden></label>
+            </div>
+            <p class="small muted" style="margin-top:10px">${S.state.projects.length} proyectos · ${S.state.brands.length} empresas. La API key nunca va en el respaldo.</p>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Zona de riesgo</span></div>
+            <button class="btn btn-red" id="sReset">Borrar todos los proyectos y empresas</button>
+          </div>
+        </div>
+      </div>`;
+
+    $("#sVer").addEventListener("click", () => { const k = $("#sKey"); k.type = k.type === "password" ? "text" : "password"; });
+    const guardar = () => {
+      Object.assign(s, {
+        appName: $("#sName").value.trim() || "Vocalis Studio",
+        apiKey: $("#sKey").value.trim(), modelText: $("#sMT").value.trim() || "gemini-3.8-flash", modelTTS: $("#sMV").value.trim() || "gemini-3.8-flash-tts",
+        wps: Math.max(1.5, Math.min(4, Number($("#sWps").value) || 2.5)), clip: Number($("#sClip").value), promptLang: $("#sLang").value,
+      });
+      S.guardarAjustes();
+      estadoApi();
+      aplicarNombre();
+    };
+    $("#sName").addEventListener("change", guardar);
+    $("#sLogo").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      try {
+        s.logo = await prepararLogo(f);
+        S.guardarAjustes();
+        aplicarNombre();
+        toast("Logo actualizado ✓", "ok");
+        vAjustes();
+      } catch (err) {
+        toast(err.message, "error");
+      }
+    });
+    const lgn = $("#sLogoNo");
+    if (lgn) lgn.addEventListener("click", () => {
+      delete s.logo;
+      S.guardarAjustes();
+      aplicarNombre();
+      toast("Logo quitado: vuelve el micrófono.");
+      vAjustes();
+    });
+    const lk = $("#sLockOk");
+    if (lk) lk.addEventListener("click", async () => {
+      const v = $("#sLock").value;
+      if (v.length < 4) return toast("La clave debe tener al menos 4 caracteres.", "error");
+      localStorage.setItem(LOCK, await huella(v));
+      try { sessionStorage.setItem("vocalis.ok", "1"); } catch (e) { /* */ }
+      toast("Clave guardada ✓ La pedirá la próxima vez que abras el estudio.", "ok");
+      vAjustes();
+    });
+    const lkn = $("#sLockNo");
+    if (lkn) lkn.addEventListener("click", () => {
+      if (!confirm("¿Quitar la clave de este equipo?")) return;
+      localStorage.removeItem(LOCK);
+      toast("Clave quitada");
+      vAjustes();
+    });
+    const sl = $("#sSalir");
+    if (sl) sl.addEventListener("click", async () => {
+      await S.sincronizar();
+      await fetch("/api/salir", { method: "POST", credentials: "same-origin" });
+      location.reload();
+    });
+    const sy = $("#sSync");
+    if (sy) sy.addEventListener("click", async () => { await S.sincronizar(); toast("Sincronizado ✓", "ok"); });
+    $("#sSave").addEventListener("click", () => { guardar(); toast("Ajustes guardados ✓", "ok"); });
+    ["#sWps", "#sClip", "#sLang"].forEach((id) => $(id).addEventListener("change", guardar));
+    $("#sTest").addEventListener("click", async (e) => {
+      guardar();
+      const btn = e.currentTarget;
+      cargando(btn, true, "Probando…");
+      try {
+        const r = await G.probar();
+        toast(`Conexión correcta ✓ (${S.state.settings.modelText} respondió: ${r.slice(0, 20)})`, "ok");
+      } catch (err) {
+        toast(err.message, "error");
+      } finally {
+        cargando(btn, false);
+      }
+    });
+    const aDataUrl = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(blob); });
+    $("#sExp").addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      cargando(btn, true, "Preparando…");
+      try {
+        const obj = S.exportJSON();
+        let n = 0;
+        if ($("#sConAudio").checked) {
+          obj.media = [];
+          for (const p of S.state.projects) {
+            for (const k of await VS.media.keys(p.id + "__voz__")) {
+              const t = await VS.media.get(k);
+              if (!t || !t.blob) continue;
+              obj.media.push({ key: k, voice: t.voice || "", estilo: t.estilo || "", origen: t.origen || "", fecha: t.fecha || Date.now(), data: await aDataUrl(t.blob) });
+              n++;
+            }
+          }
+        }
+        const nombre = slug(S.state.settings.appName || "vocalis");
+        descargar(`${nombre}-respaldo-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(obj), "application/json");
+        toast(`Respaldo listo: ${S.state.projects.length} proyectos${n ? ` y ${n} audios` : ""} ✓`, "ok");
+      } catch (err) {
+        toast("No se pudo exportar: " + err.message, "error");
+      } finally {
+        cargando(btn, false);
+      }
+    });
+    $("#sImp").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      try {
+        const obj = JSON.parse(await f.text());
+        const na = Array.isArray(obj.media) ? obj.media.length : 0;
+        if (!confirm(`Esto reemplaza lo que hay en este equipo por el respaldo: ${obj.projects.length} proyectos, ${obj.brands.length} empresas${na ? ` y ${na} audios` : ""}. ¿Continuar?`)) return;
+        S.importJSON(obj);
+        let ok = 0;
+        for (const m of obj.media || []) {
+          try {
+            const blob = await (await fetch(m.data)).blob();
+            await VS.media.put(m.key, { blob, voice: m.voice, estilo: m.estilo, origen: m.origen, fecha: m.fecha });
+            ok++;
+          } catch (err) { /* audio dañado: se omite */ }
+        }
+        actual = null;
+        toast(`Respaldo importado ✓ ${ok ? ok + " audios restaurados." : ""}`, "ok");
+        vAjustes();
+      } catch (err) {
+        toast(err.message || "No se pudo leer el archivo.", "error");
+      }
+    });
+    $("#sReset").addEventListener("click", () => {
+      if (!confirm("¿Borrar TODOS los proyectos y empresas? Exporta un respaldo antes si lo necesitas.")) return;
+      S.reset();
+      actual = null;
+      toast("Estudio vacío.");
+      vAjustes();
+    });
+  }
+
+  /* =========================================================
+     PRODUCCIÓN AUTOMÁTICA (lotes por empresa)
+     ========================================================= */
+  const lote = { corriendo: false, cancelar: false, cola: [], sel: null, cfg: null };
+  const PLAT = { short: ["TikTok", "Reels", "Shorts"], largo: ["YouTube"], cuna: ["Emisora", "WhatsApp"], jingle: ["Emisora", "WhatsApp"] };
+  const ESTADO_COLA = {
+    pendiente: ["", "En espera"], temas: ["chip-violet", "Pensando temas"], guion: ["chip-gold", "Escribiendo guion"],
+    voz: ["chip-violet", "Generando voz"], radio: ["chip-pink", "Mezclando radio"], listo: ["chip-green", "Listo ✓"],
+    error: ["chip-red", "Error"], cancelado: ["", "Cancelado"],
+  };
+  const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  async function reintentar(fn, it) {
+    for (let intento = 1; ; intento++) {
+      try {
+        return await fn();
+      } catch (e) {
+        const temporal = !e.status || e.status === 429 || e.status >= 500;
+        if (!temporal || intento >= 3 || lote.cancelar) throw e;
+        const seg = 20 * intento;
+        if (it) { it.msg = `Límite o error temporal. Reintento en ${seg} s…`; pintarCola(); }
+        await espera(seg * 1000);
+        if (it) it.msg = "";
+      }
+    }
+  }
+
+  function vAuto(preId) {
+    const B = S.state.brands;
+    const hayKey = !!S.state.settings.apiKey;
+    if (preId && S.brand(preId)) lote.sel = [preId];
+    const sel = new Set(lote.sel || B.map((b) => b.id));
+    const c = lote.cfg || { cant: { short: 3, cuna: 1, jingle: 0, largo: 0 }, dur: { short: 30, cuna: 30, jingle: 30, largo: 180 }, modo: "auto", mios: "", voz: true, radio: false, fechas: false, desde: new Date().toISOString().slice(0, 10), cada: 1 };
+
+    view.innerHTML = `
+      <div class="page-head">
+        <div><span class="eyebrow">Producción automática</span><h1>Guiones y voces en lote</h1>
+          <p>Elige empresas y cantidades. El estudio propone temas, escribe cada guion con el perfil de la empresa y genera las voces.</p></div>
+      </div>
+      ${B.length ? "" : `<div class="note warn" style="margin-bottom:14px">Primero crea tus empresas en <a href="#/marcas">Empresas</a>.</div>`}
+      ${hayKey ? "" : `<div class="note warn" style="margin-bottom:14px">Sin API key de Gemini solo se crean borradores base (sin IA y sin voz). Agrégala en <a href="#/ajustes">Ajustes</a> para producir en automático.</div>`}
+      <div class="grid-2">
+        <div class="sticky">
+          <div class="card">
+            <div class="card-head"><span class="card-title">1 · Empresas</span><label class="check"><input type="checkbox" id="lTodas" ${sel.size === B.length && B.length ? "checked" : ""}> Todas</label></div>
+            <div class="list" style="max-height:220px;overflow:auto">
+              ${B.map((b) => `<label class="list-item check" style="cursor:pointer"><span><input type="checkbox" data-emp="${b.id}" ${sel.has(b.id) ? "checked" : ""}> <b>${esc(b.nombre)}</b> <span class="muted small">· ${esc(b.nicho || "")}</span></span><span class="chip chip-violet">🎙️ ${esc((b.voz && b.voz.voice) || "Kore")}</span></label>`).join("")}
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">2 · Qué crear por empresa</span></div>
+            ${Object.entries(E.TIPOS).map(([k, t]) => `
+              <div class="row" style="grid-template-columns:1fr 80px 110px;align-items:center;margin-bottom:8px">
+                <span>${t.icono} ${t.label}</span>
+                <input type="number" min="0" max="30" value="${c.cant[k]}" data-cant="${k}" aria-label="Cantidad de ${t.label}">
+                <select data-dur="${k}">${opciones(t.duraciones.map((d) => [d, durTxt(d)]), c.dur[k])}</select>
+              </div>`).join("")}
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">3 · Temas</span></div>
+            <div class="checks" style="margin-bottom:10px">
+              <label class="check"><input type="radio" name="lModo" value="auto" ${c.modo === "auto" ? "checked" : ""} ${hayKey ? "" : "disabled"}> La IA propone temas distintos</label>
+              <label class="check"><input type="radio" name="lModo" value="mios" ${c.modo === "mios" || !hayKey ? "checked" : ""}> Mis temas</label>
+            </div>
+            <textarea id="lMios" rows="4" placeholder="Un tema por línea. Se reparten en orden entre las piezas.&#10;Ej: Promo 2x1 del viernes&#10;Lanzamiento del nuevo menú">${esc(c.mios)}</textarea>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">4 · Voz, radio y calendario</span></div>
+            <div class="btn-stack">
+              <label class="check"><input type="checkbox" id="lVoz" ${c.voz && hayKey ? "checked" : ""} ${hayKey ? "" : "disabled"}> Generar la voz de cada pieza con la voz de su empresa</label>
+              <label class="check"><input type="checkbox" id="lRadio" ${c.radio ? "checked" : ""} ${hayKey ? "" : "disabled"}> Mezclar cuñas y jingles con cama musical (listos para emisora)</label>
+              <div class="row" style="grid-template-columns:1fr auto" id="lCamaRow">
+                <span class="muted small" id="lCamaNom" style="align-self:center">${ultimaCama ? esc(ultimaCama.name) : "Elige la cama musical"}</span>
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">Elegir audio<input type="file" id="lCama" accept="audio/*" hidden></label>
+              </div>
+              <label class="check"><input type="checkbox" id="lFechas" ${c.fechas ? "checked" : ""}> Programar fechas de publicación</label>
+              <div class="row">
+                <label class="field"><span>Desde</span><input type="date" id="lDesde" value="${esc(c.desde)}"></label>
+                <label class="field"><span>Cada</span><select id="lCada">${opciones([[1, "1 día"], [2, "2 días"], [3, "3 días"], [7, "1 semana"]], c.cada)}</select></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Resumen</span></div>
+            <p id="lResumen" style="margin-bottom:14px"></p>
+            <div class="btn-row">
+              <button class="btn btn-gold" id="lGo">${hayKey ? "⚡ Iniciar producción automática" : "⚡ Crear borradores"}</button>
+              <button class="btn btn-red" id="lStop" ${lote.corriendo ? "" : "disabled"}>■ Detener</button>
+            </div>
+            <p class="note" style="margin-top:12px">Puedes seguir usando el estudio mientras trabaja; no cierres esta pestaña. Si Gemini llega a su límite, el estudio espera y reintenta solo.</p>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Progreso</span><span class="mono muted small" id="lCuenta"></span></div>
+            <div class="timebar"><div id="lBar"></div></div>
+            <div class="list" id="cola"></div>
+          </div>
+        </div>
+      </div>`;
+
+    const leer = () => {
+      const cfg = {
+        empresas: $$("[data-emp]").filter((x) => x.checked).map((x) => x.dataset.emp),
+        cant: {}, dur: {},
+        modo: ($("[name=lModo]:checked") || {}).value || "mios",
+        mios: $("#lMios").value,
+        voz: $("#lVoz").checked, radio: $("#lRadio").checked,
+        fechas: $("#lFechas").checked, desde: $("#lDesde").value, cada: Number($("#lCada").value),
+      };
+      $$("[data-cant]").forEach((x) => (cfg.cant[x.dataset.cant] = Math.max(0, Math.min(30, Number(x.value) || 0))));
+      $$("[data-dur]").forEach((x) => (cfg.dur[x.dataset.dur] = Number(x.value)));
+      lote.sel = cfg.empresas;
+      lote.cfg = cfg;
+      return cfg;
+    };
+    const resumen = () => {
+      const cfg = leer();
+      const porEmp = Object.values(cfg.cant).reduce((a, b) => a + b, 0);
+      const total = porEmp * cfg.empresas.length;
+      const llamadas = hayKey ? total * (cfg.voz ? 2 : 1) + (cfg.modo === "auto" ? cfg.empresas.length : 0) : 0;
+      $("#lResumen").innerHTML = total
+        ? `Se crearán <b>${total}</b> piezas (${porEmp} por empresa × ${cfg.empresas.length} ${cfg.empresas.length === 1 ? "empresa" : "empresas"}).${hayKey ? ` Unas <b>${llamadas}</b> llamadas a Gemini.` : ""}`
+        : `Elige al menos una empresa y una cantidad.`;
+      $("#lGo").disabled = !total || lote.corriendo;
+      $("#lCamaRow").style.display = cfg.radio ? "" : "none";
+    };
+    const grid = $(".grid-2", view);
+    grid.addEventListener("input", resumen);
+    grid.addEventListener("change", resumen);
+    $("#lTodas").addEventListener("change", (e) => { $$("[data-emp]").forEach((x) => (x.checked = e.target.checked)); resumen(); });
+    $("#lCama").addEventListener("change", (e) => {
+      if (e.target.files[0]) { ultimaCama = e.target.files[0]; $("#lCamaNom").textContent = ultimaCama.name; }
+    });
+    $("#lGo").addEventListener("click", () => {
+      const cfg = leer();
+      if (cfg.modo === "mios" && !cfg.mios.trim() && hayKey === false) {
+        if (!confirm("No escribiste temas. ¿Crear borradores con el nicho de cada empresa como tema?")) return;
+      }
+      if (cfg.radio && !ultimaCama) return toast("Elige la cama musical para las mezclas de radio, o desactiva esa opción.", "error");
+      correrLote(cfg, hayKey);
+    });
+    $("#lStop").addEventListener("click", () => { lote.cancelar = true; toast("Deteniendo después de la pieza actual…"); });
+    resumen();
+    pintarCola();
+  }
+
+  function pintarCola() {
+    const cont = $("#cola");
+    if (!cont) return;
+    const total = lote.cola.length;
+    const hechos = lote.cola.filter((x) => ["listo", "error", "cancelado"].includes(x.estado)).length;
+    $("#lCuenta").textContent = total ? `${hechos}/${total}` : "";
+    $("#lBar").style.width = total ? (hechos / total) * 100 + "%" : "0";
+    const stop = $("#lStop");
+    if (stop) stop.disabled = !lote.corriendo;
+    const go = $("#lGo");
+    if (go && lote.corriendo) go.disabled = true;
+    cont.innerHTML = total
+      ? lote.cola.map((it) => {
+          const b = S.brand(it.bid);
+          const [cls, txt] = ESTADO_COLA[it.estado] || ["", it.estado];
+          return `<div class="list-item">
+            <span style="min-width:0">${E.TIPOS[it.tipo].icono} <b>${esc(b ? b.nombre : "")}</b>
+              <span class="muted small">· ${esc(it.titulo || it.tema || E.TIPOS[it.tipo].label)}</span>
+              ${it.msg ? `<br><span class="small" style="color:${it.estado === "error" ? "var(--red)" : "var(--gold-2)"}">${esc(it.msg)}</span>` : ""}</span>
+            <span class="btn-row" style="flex-shrink:0"><span class="chip ${cls}">${txt}</span>${it.pid && S.project(it.pid) ? `<a class="btn btn-ghost btn-sm" href="#/estudio/${it.pid}">Abrir</a>` : ""}</span>
+          </div>`;
+        }).join("")
+      : `<p class="muted small">Aquí verás cada pieza mientras se produce.</p>`;
+  }
+
+  async function correrLote(cfg, hayKey) {
+    if (lote.corriendo) return;
+    lote.corriendo = true;
+    lote.cancelar = false;
+    lote.cola = [];
+    const tipos = Object.entries(cfg.cant).filter(([, n]) => n > 0);
+    cfg.empresas.forEach((bid) => tipos.forEach(([tipo, n]) => {
+      for (let i = 0; i < n; i++) lote.cola.push({ bid, tipo, dur: cfg.dur[tipo], estado: "pendiente", msg: "", pid: null, tema: "", titulo: "" });
+    }));
+    pintarCola();
+    const mios = cfg.mios.split("\n").map((x) => x.trim()).filter(Boolean);
+    let k = 0;
+
+    for (const bid of cfg.empresas) {
+      if (lote.cancelar) break;
+      const b = S.brand(bid);
+      const items = lote.cola.filter((x) => x.bid === bid);
+      let temas = {};
+      if (cfg.modo === "auto" && hayKey) {
+        items.forEach((x) => (x.estado = "temas"));
+        pintarCola();
+        try {
+          const usados = S.state.projects.filter((p) => p.marcaId === bid).map((p) => p.tema || p.titulo).filter(Boolean);
+          temas = E.parseTemas(await reintentar(() => G.texto(E.promptTemas(b, cfg.cant, usados), true), items[0]));
+        } catch (e) {
+          toast(`No se pudieron proponer temas para ${b.nombre}: ${e.message}. Sigo con temas libres.`, "error");
+        }
+        items.forEach((x) => (x.estado = "pendiente"));
+      }
+      const idx = {};
+      const fecha = cfg.fechas && cfg.desde ? new Date(cfg.desde + "T12:00:00") : null;
+
+      for (const it of items) {
+        if (lote.cancelar) { it.estado = "cancelado"; continue; }
+        idx[it.tipo] = idx[it.tipo] || 0;
+        it.tema = cfg.modo === "mios" ? mios.length ? mios[k++ % mios.length] : b.nicho || "" : (temas[it.tipo] || [])[idx[it.tipo]++] || "";
+        const p = nuevoProyecto(it.tipo, bid);
+        Object.assign(p, { duracion: it.dur, tema: it.tema, plataformas: PLAT[it.tipo], titulo: (it.tema || E.TIPOS[it.tipo].label).slice(0, 80) });
+        if (fecha) { p.fecha = fecha.toISOString().slice(0, 10); fecha.setDate(fecha.getDate() + cfg.cada); }
+        S.upsertProject(p);
+        it.pid = p.id;
+        it.estado = "guion";
+        pintarCola();
+        try {
+          if (hayKey) p.resultado = E.parse(await reintentar(() => G.texto(E.promptMaestro(p, b), true), it));
+          else p.resultado = E.borrador(p, b);
+          p.titulo = p.resultado.titulo || p.titulo;
+          it.titulo = p.titulo;
+          p.estado = "guion";
+          S.upsertProject(p);
+          if (cfg.voz && hayKey && !lote.cancelar) {
+            it.estado = "voz";
+            pintarCola();
+            const voice = (b.voz && b.voz.voice) || "Kore";
+            const estilo = p.resultado.voz.estilo || (b.voz && b.voz.estilo) || "";
+            const blob = await reintentar(() => G.voz(E.textoHablado(p.resultado, p.tipo), voice, estilo), it);
+            await guardarToma(p, blob, { voice, estilo, origen: "Gemini" });
+            if (cfg.radio && ultimaCama && (p.tipo === "cuna" || p.tipo === "jingle")) {
+              it.estado = "radio";
+              pintarCola();
+              const mix = await VS.radio.mezclar({ voz: blob, musica: ultimaCama, intro: 2, outro: 3, volAlto: 0.8, volBajo: 0.22, volVoz: 1 });
+              await guardarToma(p, mix.blob, { voice: "Mezcla radio", estilo: `${voice} + ${ultimaCama.name}`, origen: "Mezcla" });
+            }
+          }
+          it.estado = "listo";
+          it.msg = "";
+        } catch (e) {
+          it.estado = "error";
+          it.msg = e.message;
+        }
+        pintarCola();
+        await espera(400);
+      }
+    }
+    lote.cola.forEach((x) => { if (x.estado === "pendiente") x.estado = "cancelado"; });
+    lote.corriendo = false;
+    pintarCola();
+    const ok = lote.cola.filter((x) => x.estado === "listo").length;
+    toast(`Producción terminada: ${ok} de ${lote.cola.length} piezas listas.`, ok ? "ok" : "error");
+  }
+
+  /* ---------- Paquete ZIP por empresa ---------- */
+  let zipLib = null;
+  function cargarZip() {
+    if (window.JSZip) return Promise.resolve(window.JSZip);
+    if (!zipLib) {
+      zipLib = new Promise((res, rej) => {
+        const sc = document.createElement("script");
+        sc.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+        sc.onload = () => res(window.JSZip);
+        sc.onerror = () => { zipLib = null; rej(new Error("No se pudo cargar el compresor ZIP. Revisa tu conexión.")); };
+        document.head.appendChild(sc);
+      });
+    }
+    return zipLib;
+  }
+
+  async function paqueteEmpresa(b, btn) {
+    const ps = S.state.projects.filter((p) => p.marcaId === b.id && p.resultado);
+    if (!ps.length) return toast("Esta empresa aún no tiene guiones.", "error");
+    cargando(btn, true, "Armando…");
+    try {
+      const JSZip = await cargarZip();
+      const zip = new JSZip();
+      let audios = 0;
+      for (const p of ps) {
+        const f = zip.folder(`${E.TIPOS[p.tipo].label.split(" ")[0]} - ${slug(p.titulo)}`);
+        f.file("ficha.txt", E.ficha(p, b));
+        f.file("kit-redes.txt", E.kitTexto(p.resultado));
+        if (E.TIPOS[p.tipo].video) {
+          f.file("prompts-veo.txt", E.prompsVeoTexto(p.resultado));
+          f.file("subtitulos.srt", E.srtEscenas(p.resultado));
+        }
+        if (p.resultado.prompt_musica) f.file("prompt-musica.txt", p.resultado.prompt_musica);
+        for (const k of await VS.media.keys(p.id + "__voz__")) {
+          const t = await VS.media.get(k);
+          if (!t || !t.blob) continue;
+          const ext = (t.blob.type.split("/")[1] || "wav").replace("mpeg", "mp3").split(";")[0];
+          f.file(`${slug(t.voice)}-${k.split("__").pop()}.${ext}`, t.blob);
+          audios++;
+        }
+      }
+      const out = await zip.generateAsync({ type: "blob" });
+      descargar(`${slug(b.nombre)}-paquete-${new Date().toISOString().slice(0, 10)}.zip`, out);
+      toast(`Paquete listo: ${ps.length} piezas y ${audios} audios ✓`, "ok");
+    } catch (e) {
+      toast(e.message, "error");
+    } finally {
+      cargando(btn, false);
+    }
+  }
+
+  /* =========================================================
+     AYUDA
+     ========================================================= */
+  const MANUAL_URL = "https://claude.ai/artifact/4JvEz8GASuHBiJ9RBXW9sa";
+
+  function vAyuda() {
+    const paso = (n, ico, t, d, href) => `
+      <a class="card" href="${href}" style="text-decoration:none;display:block;margin:0">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <span class="qi" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:1.3rem;background:rgba(245,165,36,.12);flex-shrink:0">${ico}</span>
+          <span><span class="eyebrow" style="margin:0">Paso ${n}</span><h3>${t}</h3><p class="muted small" style="margin-top:4px">${d}</p></span>
+        </div>
+      </a>`;
+    view.innerHTML = `
+      <div class="page-head">
+        <div><span class="eyebrow">Ayuda</span><h1>Cómo usar el estudio</h1><p>El recorrido de una pieza, de la idea al archivo listo.</p></div>
+        ${MANUAL_URL ? `<a class="btn btn-gold" href="${MANUAL_URL}" target="_blank" rel="noopener">Abrir manual completo ↗</a>` : ""}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px">
+        ${paso(1, "🏷️", "Crea tus empresas", "Nicho, productos, contacto, estética y voz. Es la base de todo lo que se genera.", "#/marcas")}
+        ${paso(2, "⚡", "Producción automática", "Elige empresas y cantidades: temas, guiones y voces se crean solos.", "#/auto")}
+        ${paso(3, "✨", "Revisa y ajusta guiones", "Edita la locución, copia los prompts de Veo y abre Flow.", "#/estudio")}
+        ${paso(4, "🎙️", "Voz y radio", "Genera o cambia la voz y mezcla cuñas y jingles con cama musical.", "#/voz")}
+        ${paso(5, "🎬", "Video de muestra", "Arrastra los clips de Flow; voz y subtítulos ya vienen listos.", "#/ensamblador")}
+        ${paso(6, "📦", "Entrega", "Descarga el paquete de cada empresa y marca la pieza como publicada.", "#/marcas")}
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="card-head"><span class="card-title">Atajos útiles</span></div>
+        <div class="list">
+          <div class="list-item"><span><b>Sin API key</b> <span class="muted small">· “Copiar prompt maestro” → pégalo en Gemini → “Pegar respuesta”.</span></span></div>
+          <div class="list-item"><span><b>Palabras de más</b> <span class="muted small">· el contador de cada escena se pone rojo si la locución no cabe en el clip.</span></span></div>
+          <div class="list-item"><span><b>Pausas y énfasis en la voz</b> <span class="muted small">· MAYÚSCULAS para enfatizar, &lt;short pause&gt; para pausar.</span></span></div>
+          <div class="list-item"><span><b>Otro PC</b> <span class="muted small">· Ajustes → Exportar respaldo aquí, e Importar respaldo allá. Viajan empresas, guiones y audios.</span></span></div>
+          <div class="list-item"><span><b>Exportar video</b> <span class="muted small">· usa Chrome o Edge en computador y deja la pestaña visible.</span></span></div>
+        </div>
+      </div>`;
+  }
+
+  const VIEWS = { panel: vPanel, estudio: vEstudio, auto: vAuto, voz: vVoz, ensamblador: vEns, marcas: vMarcas, ajustes: vAjustes, ayuda: vAyuda };
+  window.addEventListener("hashchange", render);
+  view.innerHTML = `<div class="empty" style="padding-top:18vh"><div class="big">🎙️</div><h2>Abriendo tu estudio…</h2><p>Cargando tus empresas y proyectos.</p></div>`;
+  const LOCK = "vocalis.clave";
+  async function huella(t) {
+    const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("vocalis:" + t));
+    return Array.from(new Uint8Array(b)).map((x) => x.toString(16).padStart(2, "0")).join("");
+  }
+  const leerLock = () => { try { return localStorage.getItem(LOCK) || ""; } catch (e) { return ""; } };
+
+  S.iniciar().then((r) => {
+    if (r && r.acceso) return pantallaAcceso(r.acceso);
+    let abierto = false;
+    try { abierto = sessionStorage.getItem("vocalis.ok") === "1"; } catch (e) { /* */ }
+    if (!S.cloud.on && leerLock() && !abierto) return pantallaBloqueo();
+    aplicarNombre();
+    render();
+  });
+
+  /* ---------- Clave de este equipo (modo sencillo) ---------- */
+  function pantallaBloqueo() {
+    aplicarNombre();
+    const nombre = S.state.settings.appName || "Vocalis Studio";
+    document.title = nombre + " · Entrar";
+    $(".side").style.display = "none";
+    $(".app").style.gridTemplateColumns = "1fr";
+    view.innerHTML = `
+      <div style="min-height:80vh;display:grid;place-items:center">
+        <div class="card" style="width:min(380px,100%);padding:28px 24px">
+          <span class="brand-icon ${logoActual() ? "has-logo" : ""}" style="width:52px;height:52px;margin-bottom:16px">${logoHtml()}</span>
+          <h1 style="font-size:1.4rem">${esc(nombre)}</h1>
+          <p class="muted" style="margin:6px 0 18px">Estudio privado. Ingresa tu clave.</p>
+          <form id="fLock">
+            <input type="password" id="lkPass" placeholder="Clave" autocomplete="current-password" required style="margin-bottom:12px">
+            <p class="small" id="lkErr" style="color:var(--red);margin:-4px 0 10px" hidden>Clave incorrecta.</p>
+            <button class="btn btn-gold btn-block" type="submit">Entrar</button>
+          </form>
+        </div>
+      </div>`;
+    $("#lkPass").focus();
+    $("#fLock").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if ((await huella($("#lkPass").value)) === leerLock()) {
+        try { sessionStorage.setItem("vocalis.ok", "1"); } catch (err) { /* */ }
+        $(".side").style.display = "";
+        $(".app").style.gridTemplateColumns = "";
+        aplicarNombre();
+        render();
+      } else {
+        await new Promise((r) => setTimeout(r, 700));
+        $("#lkErr").hidden = false;
+        $("#lkPass").select();
+      }
+    });
+  }
+
+  /* ---------- Pantalla de contraseña ---------- */
+  function pantallaAcceso(tipo) {
+    const nombre = localStorage.getItem("vocalis.nombre") || "Vocalis Studio";
+    document.title = nombre + " · Entrar";
+    $(".side").style.display = "none";
+    $(".app").style.gridTemplateColumns = "1fr";
+    view.innerHTML = `
+      <div style="min-height:80vh;display:grid;place-items:center">
+        <div class="card" style="width:min(380px,100%);padding:28px 24px">
+          <span class="brand-icon ${logoActual() ? "has-logo" : ""}" style="width:52px;height:52px;margin-bottom:16px">${logoHtml()}</span>
+          <h1 style="font-size:1.4rem">${esc(nombre)}</h1>
+          ${tipo === "config"
+            ? `<p class="muted" style="margin:6px 0 14px">Falta configurar la contraseña.</p>
+               <p class="note warn">En Netlify ve a <b>Project configuration → Environment variables</b>, crea <span class="mono">STUDIO_PASSWORD</span> con tu contraseña y vuelve a publicar (<b>Deploys → Trigger deploy</b>).</p>`
+            : `<p class="muted" style="margin:6px 0 18px">Estudio privado. Ingresa tu contraseña.</p>
+               <form id="fAcceso">
+                 <input type="password" id="aPass" placeholder="Contraseña" autocomplete="current-password" required style="margin-bottom:12px">
+                 <p class="small" id="aErr" style="color:var(--red);margin:-4px 0 10px" hidden></p>
+                 <button class="btn btn-gold btn-block" type="submit" id="aBtn">Entrar</button>
+               </form>`}
+        </div>
+      </div>`;
+    const f = $("#fAcceso");
+    if (!f) return;
+    $("#aPass").focus();
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = $("#aBtn");
+      cargando(btn, true, "Entrando…");
+      try {
+        const r = await fetch("/api/entrar", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ password: $("#aPass").value }) });
+        if (r.ok) { location.reload(); return; }
+        const d = await r.json().catch(() => ({}));
+        $("#aErr").textContent = d.error || "No se pudo entrar.";
+        $("#aErr").hidden = false;
+        $("#aPass").select();
+      } catch (err) {
+        $("#aErr").textContent = "Sin conexión. Intenta de nuevo.";
+        $("#aErr").hidden = false;
+      }
+      cargando(btn, false);
+    });
+  }
+  window.addEventListener("beforeunload", (e) => {
+    if (S.cloud.on && S.cloud.estado === "guardando") { e.preventDefault(); e.returnValue = ""; }
+  });
+})(window.VS);
+
+</script>
+</body>
+</html>

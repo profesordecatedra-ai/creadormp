@@ -1,0 +1,16 @@
+# Estudio privado. No necesita comando de compilación:
+# Netlify instala @netlify/blobs desde package.json y publica las funciones solas.
+[build]
+  publish = "."
+
+[functions]
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "no-referrer"
+    X-Robots-Tag = "noindex, nofollow"
+    Permissions-Policy = "camera=(), geolocation=()"

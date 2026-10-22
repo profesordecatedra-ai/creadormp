@@ -1,0 +1,11 @@
+{
+  "name": "Vocalis Studio",
+  "short_name": "Vocalis",
+  "description": "Estudio de producción de guiones, prompts, voces y videos de muestra.",
+  "start_url": "./#/panel",
+  "display": "standalone",
+  "background_color": "#090d1a",
+  "theme_color": "#090d1a",
+  "lang": "es",
+  "icons": [{ "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
