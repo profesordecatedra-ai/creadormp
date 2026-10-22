@@ -1336,9 +1336,11 @@ window.VS = window.VS || {};
       this.volVoz = 1;
       this.volMusica = 0.18;
       this.subs = [];
-      this.estilo = { posicion: "inferior", color: "#ffcf5c", caja: "glass", tam: 1, mayus: false };
+      this.estilo = { posicion: "franja", color: "#ffcf5c", caja: "glass", tam: 1, mayus: false };
       this.marca = "";
       this.muestra = false;
+      this.encuadre = "completa";  // completa (fondo difuminado) · color · llenar (recorta)
+      this.colorFondo = "#000000";
       this.ajustar = true;      // repartir los clips en la duración de la voz
       this.escala = 1;          // 1 = 1080p, 0.6667 = 720p
       this.formato = "9:16";
@@ -1437,6 +1439,52 @@ window.VS = window.VS || {};
       ctx.drawImage(src, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
     }
 
+    // Imagen completa, sin recortes (como Instagram, TikTok y Facebook)
+    contener(src, sw, sh) {
+      const { cv, ctx } = this;
+      if (!sw || !sh) return;
+      const s = Math.min(cv.width / sw, cv.height / sh);
+      const w = sw * s, h = sh * s;
+      ctx.drawImage(src, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
+    }
+
+    // Fondo difuminado hecho con la misma imagen: se reduce a un lienzo diminuto y se amplía
+    fondoDifuso(it, src, sw, sh) {
+      const { cv, ctx } = this;
+      if (!sw || !sh) return;
+      const bw = 27, bh = Math.max(12, Math.round((27 * cv.height) / cv.width));
+      if (!it.bg || it.bg.width !== bw || it.bg.height !== bh) {
+        it.bg = document.createElement("canvas");
+        it.bg.width = bw;
+        it.bg.height = bh;
+        it.bgListo = false;
+      }
+      if (!it.bgListo || it.tipo === "video") {
+        const b = it.bg.getContext("2d");
+        const k = Math.max(bw / sw, bh / sh) * 1.15;
+        b.drawImage(src, (bw - sw * k) / 2, (bh - sh * k) / 2, sw * k, sh * k);
+        it.bgListo = it.tipo === "imagen" && sw > 0;
+      }
+      ctx.save();
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(it.bg, 0, 0, cv.width, cv.height);
+      ctx.fillStyle = "rgba(0,0,0,.28)";
+      ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.restore();
+    }
+
+    pintarFuente(it, src, sw, sh, zoom) {
+      if (this.encuadre === "llenar") return this.cubrir(src, sw, sh, zoom);
+      if (this.encuadre === "color") {
+        this.ctx.fillStyle = this.colorFondo || "#000000";
+        this.ctx.fillRect(0, 0, this.cv.width, this.cv.height);
+      } else {
+        this.fondoDifuso(it, src, sw, sh);
+      }
+      this.contener(src, sw, sh);
+    }
+
     dibujar(t) {
       const { cv, ctx } = this;
       ctx.fillStyle = "#05070e";
@@ -1448,13 +1496,13 @@ window.VS = window.VS || {};
         const local = t - tr.start;
         const prog = (tr.end - tr.start) ? local / (tr.end - tr.start) : 0;
         if (it.tipo === "imagen") {
-          this.cubrir(it.el, it.el.naturalWidth, it.el.naturalHeight, 1 + 0.08 * prog); // Ken Burns
+          this.pintarFuente(it, it.el, it.el.naturalWidth, it.el.naturalHeight, 1 + 0.08 * prog); // Ken Burns solo al llenar
         } else {
           if (!this.reproduciendo) {
             const want = Math.min(local % (it.el.duration || 8), (it.el.duration || 8) - 0.05);
             if (Math.abs(it.el.currentTime - want) > 0.3) it.el.currentTime = want;
           }
-          this.cubrir(it.el, it.el.videoWidth, it.el.videoHeight, 1);
+          this.pintarFuente(it, it.el, it.el.videoWidth, it.el.videoHeight, 1);
         }
         // fundido corto al entrar a cada tramo
         if (local < 0.18 && tr.start > 0) {
@@ -1505,7 +1553,7 @@ window.VS = window.VS || {};
       });
       const lh = fs * 1.22;
       const altoBloque = lineas.length * lh;
-      const yc = estilo.posicion === "superior" ? cv.height * 0.18 : estilo.posicion === "centro" ? cv.height * 0.5 : cv.height * 0.74;
+      const yc = estilo.posicion === "superior" ? cv.height * 0.12 : estilo.posicion === "centro" ? cv.height * 0.5 : estilo.posicion === "franja" ? cv.height * 0.9 : cv.height * 0.74;
       const y0 = yc - altoBloque / 2 + lh / 2;
       const anchos = lineas.map((l) => l.reduce((a, i) => a + ctx.measureText(palabras[i]).width, 0) + esp * (l.length - 1));
       const maxL = Math.max(...anchos);
@@ -2736,7 +2784,7 @@ window.VS = window.VS || {};
             <div class="card-head"><span class="card-title">3 · Subtítulos</span><label class="check"><input type="checkbox" id="aSubOn" ${A.subsOn ? "checked" : ""}> Activar</label></div>
             <label class="field"><span>Texto (se sincroniza con la voz)</span><textarea id="aTexto" rows="4">${esc(A.texto)}</textarea></label>
             <div class="row">
-              <label class="field"><span>Posición</span><select id="aPos">${opciones([["inferior", "Tercio inferior"], ["centro", "Centro"], ["superior", "Superior"]], st.posicion)}</select></label>
+              <label class="field"><span>Posición</span><select id="aPos">${opciones([["franja", "Abajo, fuera de la imagen"], ["superior", "Arriba, fuera de la imagen"], ["inferior", "Tercio inferior"], ["centro", "Centro"]], st.posicion)}</select></label>
               <label class="field"><span>Caja</span><select id="aCaja">${opciones([["glass", "Cristal"], ["solida", "Sólida"], ["ninguna", "Sin caja"]], st.caja)}</select></label>
             </div>
             <div class="row-3">
@@ -2751,6 +2799,10 @@ window.VS = window.VS || {};
             <div class="row">
               <label class="field"><span>Formato</span><select id="aFmt">${opciones([["9:16", "9:16 Reels/TikTok"], ["16:9", "16:9 YouTube"], ["1:1", "1:1"], ["4:5", "4:5 Feed"]], inst.formato)}</select></label>
               <label class="field"><span>Calidad</span><select id="aQ">${opciones([[0.6667, "720p (rápido)"], [1, "1080p"]], inst.escala)}</select></label>
+            </div>
+            <div class="row" style="grid-template-columns:1fr auto">
+              <label class="field"><span>Imágenes y clips</span><select id="aEnc">${opciones([["completa", "Completas, fondo difuminado (como Instagram)"], ["color", "Completas, fondo de color"], ["llenar", "Llenar la pantalla (recorta bordes)"]], inst.encuadre)}</select></label>
+              <label class="field" id="aColorFondoBox" ${inst.encuadre === "color" ? "" : "hidden"}><span>Fondo</span><input type="color" id="aColorFondo" value="${inst.colorFondo}" style="height:42px;width:60px;padding:4px"></label>
             </div>
             <label class="field"><span>Nombre en pantalla</span><input type="text" id="aMarca" value="${esc(inst.marca)}" placeholder="Opcional"></label>
             <div class="checks">
@@ -2905,6 +2957,12 @@ window.VS = window.VS || {};
     $("#aFmt").addEventListener("change", (e) => { inst.setFormato(e.target.value); });
     $("#aQ").addEventListener("change", (e) => { inst.setFormato(inst.formato, Number(e.target.value)); });
     $("#aMarca").addEventListener("input", (e) => { inst.marca = e.target.value; inst.dibujar(0); });
+    $("#aEnc").addEventListener("change", (e) => {
+      inst.encuadre = e.target.value;
+      $("#aColorFondoBox").hidden = inst.encuadre !== "color";
+      inst.dibujar(0);
+    });
+    $("#aColorFondo").addEventListener("input", (e) => { inst.colorFondo = e.target.value; inst.dibujar(0); });
     $("#aAjus").addEventListener("change", (e) => { inst.ajustar = e.target.checked; rehacerSubs(); });
     $("#aMuestra").addEventListener("change", (e) => { inst.muestra = e.target.checked; inst.dibujar(0); });
 
