@@ -342,6 +342,8 @@ window.VS = window.VS || {};
       apiKey: "",
       modelText: "gemini-3.8-flash",
       modelTTS: "gemini-3.8-flash-tts",
+      modelImage: "gemini-nano-banana-2.1",
+      modelVideo: "gemini-omni-1.1-flash",
       wps: 2.5,
       clip: 8,
       promptLang: "en",
@@ -1303,18 +1305,259 @@ window.VS = window.VS || {};
     return aBlob(b64aBytes(part.inlineData.data), part.inlineData.mimeType);
   }
 
+  /* ---------- Imágenes y clips de video ---------- */
+  const salidas = (d, tipo) => (d.steps || [])
+    .filter((st) => st.type === "model_output")
+    .flatMap((st) => st.content || [])
+    .filter((c) => c.type === tipo && (c.data || c.uri));
+
+  const aBase64 = (blob) => new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result).split(",")[1]);
+    r.onerror = () => rej(r.error);
+    r.readAsDataURL(blob);
+  });
+
+  async function descargarUri(uri, mimeDefecto) {
+    let r = await fetch(uri, { headers: { "x-goog-api-key": llave() } });
+    if (!r.ok) r = await fetch(uri + (uri.includes("?") ? "&" : "?") + "key=" + encodeURIComponent(llave()));
+    if (!r.ok) throw await errorDe(r);
+    const b = await r.blob();
+    return b.type && b.type !== "application/octet-stream" ? b : new Blob([b], { type: mimeDefecto });
+  }
+
+  async function aArchivo(c, mimeDefecto) {
+    if (c.data) return new Blob([b64aBytes(c.data)], { type: c.mime_type || mimeDefecto });
+    return descargarUri(c.uri, c.mime_type || mimeDefecto);
+  }
+
+  // Imagen con Nano Banana (aspecto: 9:16, 16:9, 1:1, 4:5)
+  async function imagen(prompt, aspecto) {
+    const s = VS.store.state.settings;
+    const modelo = s.modelImage || "gemini-nano-banana-2.1";
+    let r = await fetch(`${BASE}/interactions`, {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({
+        model: modelo,
+        input: prompt,
+        response_format: { type: "image", mime_type: "image/jpeg", aspect_ratio: aspecto, image_size: "2K" },
+      }),
+    });
+    if (r.ok) {
+      const im = salidas(await r.json(), "image");
+      if (im.length) return aArchivo(im[im.length - 1], "image/jpeg");
+    } else if ([401, 403, 429].includes(r.status)) {
+      throw await errorDe(r);
+    }
+    // respaldo: generateContent
+    r = await fetch(`${BASE}/models/${encodeURIComponent(modelo)}:generateContent`, {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseModalities: ["IMAGE"], imageConfig: { aspectRatio: aspecto } },
+      }),
+    });
+    if (!r.ok) throw await errorDe(r);
+    const d = await r.json();
+    const part = ((d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts) || []).find((x) => x.inlineData);
+    if (!part) throw new Error("Gemini no devolvió imagen. Prueba con otra descripción.");
+    return new Blob([b64aBytes(part.inlineData.data)], { type: part.inlineData.mimeType || "image/png" });
+  }
+
+  // Clip de video con Gemini Omni Flash (aspecto 9:16 o 16:9). Si llega una imagen, la usa como primer cuadro.
+  async function videoClip(prompt, aspecto, imagenBlob) {
+    const s = VS.store.state.settings;
+    const cuerpo = {
+      model: s.modelVideo || "gemini-omni-1.1-flash",
+      input: prompt,
+      response_format: { type: "video", aspect_ratio: aspecto === "16:9" ? "16:9" : "9:16", resolution: "720p" },
+      store: false,
+    };
+    if (imagenBlob) {
+      cuerpo.input = [
+        { type: "image", data: await aBase64(imagenBlob), mime_type: imagenBlob.type || "image/jpeg" },
+        { type: "text", text: prompt },
+      ];
+      cuerpo.generation_config = { video_config: { task: "image_to_video" } };
+    }
+    const r = await fetch(`${BASE}/interactions`, { method: "POST", headers: headers(), body: JSON.stringify(cuerpo) });
+    if (!r.ok) throw await errorDe(r);
+    const vids = salidas(await r.json(), "video");
+    if (!vids.length) throw new Error("Gemini no devolvió el video. Revisa la descripción o intenta de nuevo.");
+    return aArchivo(vids[vids.length - 1], "video/mp4");
+  }
+
   async function probar() {
     const t = await texto('Responde solo con la palabra "listo".', false);
     return t.trim();
   }
 
-  VS.gemini = { VOCES, texto, voz, probar };
+  VS.gemini = { VOCES, texto, voz, imagen, videoClip, probar };
 })(window.VS);
 
 </script>
   <script>
-/* Ensamblador de videos en el navegador: clips/imágenes + voz + música + subtítulos.
-   Dibuja en un canvas y graba con MediaRecorder (MP4 si el navegador lo permite, si no WebM). */
+/* Muxer MP4 propio (sin librerías externas).
+   Une video (H.264 o VP9) y audio (AAC u Opus) ya codificados en un archivo MP4 "faststart". */
+window.VS = window.VS || {};
+(function (VS) {
+  "use strict";
+
+  const enc = new TextEncoder();
+  const u8 = (arr) => new Uint8Array(arr);
+  const u16 = (n) => u8([(n >>> 8) & 255, n & 255]);
+  const u24 = (n) => u8([(n >>> 16) & 255, (n >>> 8) & 255, n & 255]);
+  const u32 = (n) => u8([(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255]);
+  const i16 = (n) => u16(n & 0xffff);
+  const str = (s) => enc.encode(s);
+  const zeros = (n) => new Uint8Array(n);
+
+  function cat(parts) {
+    let len = 0;
+    for (const p of parts) len += p.length;
+    const out = new Uint8Array(len);
+    let o = 0;
+    for (const p of parts) { out.set(p, o); o += p.length; }
+    return out;
+  }
+  const box = (type, ...parts) => {
+    const body = cat(parts);
+    return cat([u32(8 + body.length), str(type), body]);
+  };
+  const fullbox = (type, version, flags, ...parts) => box(type, u8([version]), u24(flags), ...parts);
+  const MATRIZ = cat([u32(0x00010000), u32(0), u32(0), u32(0), u32(0x00010000), u32(0), u32(0), u32(0), u32(0x40000000)]);
+
+  // Descriptor MPEG-4 con longitud en 4 bytes (formato de tamaño expandido)
+  const desc = (tag, ...parts) => {
+    const body = cat(parts);
+    const n = body.length;
+    return cat([u8([tag, 0x80 | ((n >>> 21) & 127), 0x80 | ((n >>> 14) & 127), 0x80 | ((n >>> 7) & 127), n & 127]), body]);
+  };
+
+  function ascAAC(sampleRate, channels) {
+    const tabla = [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350];
+    const fi = Math.max(0, tabla.indexOf(sampleRate));
+    const v = (2 << 11) | (fi << 7) | (channels << 3);
+    return u8([(v >>> 8) & 255, v & 255]);
+  }
+
+  function entradaVideo(v) {
+    const comun = cat([
+      zeros(6), u16(1), // reservado + data_reference_index
+      zeros(16), u16(v.width), u16(v.height),
+      u32(0x00480000), u32(0x00480000), u32(0), u16(1),
+      zeros(32), u16(0x0018), i16(-1),
+    ]);
+    if (v.codec === "avc") return box("avc1", comun, box("avcC", v.description));
+    // VP9: caja vpcC (perfil 0, 8 bits, 4:2:0, BT.709)
+    const vpcC = fullbox("vpcC", 1, 0, u8([0, 40, (8 << 4) | (1 << 1) | 0, 1, 1, 1]), u16(0));
+    return box("vp09", comun, vpcC);
+  }
+
+  function entradaAudio(a) {
+    const comun = cat([zeros(6), u16(1), zeros(8), u16(a.channels), u16(16), u16(0), u16(0), u32(a.sampleRate * 65536 >>> 0)]);
+    if (a.codec === "aac") {
+      const asc = a.description && a.description.length ? a.description : ascAAC(a.sampleRate, a.channels);
+      const es = desc(3, u16(2), u8([0]),
+        desc(4, u8([0x40, 0x15]), u24(0), u32(a.bitrate || 160000), u32(a.bitrate || 160000), desc(5, asc)),
+        desc(6, u8([2])));
+      return box("mp4a", comun, fullbox("esds", 0, 0, es));
+    }
+    // Opus: caja dOps (big endian)
+    let preskip = 312;
+    if (a.description && a.description.length >= 12) preskip = a.description[10] | (a.description[11] << 8);
+    const dOps = box("dOps", u8([0, a.channels]), u16(preskip), u32(a.sampleRate), i16(0), u8([0]));
+    return box("Opus", comun, dOps);
+  }
+
+  function stts(deltas) {
+    const runs = [];
+    for (const d of deltas) {
+      const last = runs[runs.length - 1];
+      if (last && last[1] === d) last[0]++;
+      else runs.push([1, d]);
+    }
+    return fullbox("stts", 0, 0, u32(runs.length), ...runs.map(([c, d]) => cat([u32(c), u32(d)])));
+  }
+
+  function trak(id, pista, offsets, durMovie) {
+    const esVideo = pista.tipo === "video";
+    const ts = pista.timescale;
+    const deltas = pista.chunks.map((c) => Math.max(1, Math.round((c.dur * ts) / 1e6)));
+    const durMedia = deltas.reduce((a, b) => a + b, 0);
+    const tkhd = fullbox("tkhd", 0, 3, u32(0), u32(0), u32(id), u32(0), u32(durMovie), zeros(8), u16(0), u16(0),
+      u16(esVideo ? 0 : 0x0100), u16(0), MATRIZ, u32(esVideo ? pista.width * 65536 : 0), u32(esVideo ? pista.height * 65536 : 0));
+    const mdhd = fullbox("mdhd", 0, 0, u32(0), u32(0), u32(ts), u32(durMedia), u16(0x55c4), u16(0));
+    const hdlr = fullbox("hdlr", 0, 0, u32(0), str(esVideo ? "vide" : "soun"), zeros(12), str(esVideo ? "VideoHandler\0" : "SoundHandler\0"));
+    const xmhd = esVideo ? fullbox("vmhd", 0, 1, zeros(8)) : fullbox("smhd", 0, 0, zeros(4));
+    const dinf = box("dinf", fullbox("dref", 0, 0, u32(1), fullbox("url ", 0, 1)));
+    const stsd = fullbox("stsd", 0, 0, u32(1), esVideo ? entradaVideo(pista) : entradaAudio(pista));
+    const partes = [stsd, stts(deltas)];
+    if (esVideo) {
+      const keys = [];
+      pista.chunks.forEach((c, i) => c.key && keys.push(i + 1));
+      partes.push(fullbox("stss", 0, 0, u32(keys.length), ...keys.map(u32)));
+    }
+    partes.push(fullbox("stsc", 0, 0, u32(1), u32(1), u32(1), u32(1)));
+    partes.push(fullbox("stsz", 0, 0, u32(0), u32(pista.chunks.length), ...pista.chunks.map((c) => u32(c.data.length))));
+    partes.push(fullbox("stco", 0, 0, u32(offsets.length), ...offsets.map(u32)));
+    const stbl = box("stbl", ...partes);
+    return box("trak", tkhd, box("mdia", mdhd, hdlr, box("minf", xmhd, dinf, stbl)));
+  }
+
+  // video/audio: { tipo, codec, width, height, description, sampleRate, channels, bitrate, chunks:[{data, ts, dur, key}] }
+  function mux(video, audio) {
+    const pistas = [];
+    if (video && video.chunks.length) pistas.push(Object.assign({ tipo: "video", timescale: 90000 }, video));
+    if (audio && audio.chunks.length) pistas.push(Object.assign({ tipo: "audio", timescale: audio.sampleRate }, audio));
+    if (!pistas.length) throw new Error("No hay contenido para guardar.");
+
+    // Orden de las muestras en mdat: intercaladas por tiempo
+    const orden = [];
+    pistas.forEach((p, pi) => p.chunks.forEach((c, ci) => orden.push({ pi, ci, ts: c.ts })));
+    orden.sort((a, b) => a.ts - b.ts || a.pi - b.pi);
+
+    const durMs = Math.round(Math.max(...pistas.map((p) => {
+      const last = p.chunks[p.chunks.length - 1];
+      return (last.ts + last.dur) / 1000;
+    })));
+    const ftyp = box("ftyp", str("isom"), u32(512), str("isom"), str("iso2"), str("avc1"), str("mp41"));
+
+    const construirMoov = (base) => {
+      const offs = pistas.map(() => []);
+      let o = base;
+      for (const s of orden) {
+        offs[s.pi][s.ci] = o;
+        o += pistas[s.pi].chunks[s.ci].data.length;
+      }
+      const mvhd = fullbox("mvhd", 0, 0, u32(0), u32(0), u32(1000), u32(durMs), u32(0x00010000), u16(0x0100), zeros(10), MATRIZ, zeros(24), u32(pistas.length + 1));
+      return box("moov", mvhd, ...pistas.map((p, i) => trak(i + 1, p, offs[i], durMs)));
+    };
+    const tam = construirMoov(0).length;
+    const moov = construirMoov(ftyp.length + tam + 8);
+    const total = orden.reduce((a, s) => a + pistas[s.pi].chunks[s.ci].data.length, 0);
+    const mdat = new Uint8Array(8 + total);
+    mdat.set(u32(8 + total), 0);
+    mdat.set(str("mdat"), 4);
+    let o = 8;
+    for (const s of orden) {
+      const d = pistas[s.pi].chunks[s.ci].data;
+      mdat.set(d, o);
+      o += d.length;
+    }
+    return new Blob([ftyp, moov, mdat], { type: "video/mp4" });
+  }
+
+  VS.mp4 = { mux };
+})(window.VS);
+
+</script>
+  <script>
+/* Ensamblador de videos en el navegador: clips/imágenes + voz + música + subtítulos + transiciones.
+   Exporta cuadro por cuadro con WebCodecs (MP4 H.264/AAC), sin depender de la velocidad del PC
+   ni de que la ventana esté visible. Si el navegador no lo permite, graba en tiempo real. */
 window.VS = window.VS || {};
 (function (VS) {
   "use strict";
@@ -1341,6 +1584,10 @@ window.VS = window.VS || {};
       this.muestra = false;
       this.encuadre = "completa";  // completa (fondo difuminado) · color · llenar (recorta)
       this.colorFondo = "#000000";
+      this.movimiento = false;    // acercamiento lento en imágenes
+      this.transicion = "fundido"; // fundido · negro · deslizar · zoom · ninguna
+      this.durTrans = 0.6;
+      this.exacto = false;      // true mientras se exporta cuadro por cuadro
       this.ajustar = true;      // repartir los clips en la duración de la voz
       this.escala = 1;          // 1 = 1080p, 0.6667 = 720p
       this.formato = "9:16";
@@ -1399,6 +1646,8 @@ window.VS = window.VS || {};
 
     async setAudio(cual, blobOUrl) {
       if (this[cual]) { this[cual].pause(); }
+      this[cual + "Blob"] = blobOUrl && typeof blobOUrl !== "string" ? blobOUrl : null;
+      this[cual + "Url"] = typeof blobOUrl === "string" ? blobOUrl : null;
       if (!blobOUrl) { this[cual] = null; return 0; }
       const url = typeof blobOUrl === "string" ? blobOUrl : URL.createObjectURL(blobOUrl);
       const a = new Audio();
@@ -1440,10 +1689,10 @@ window.VS = window.VS || {};
     }
 
     // Imagen completa, sin recortes (como Instagram, TikTok y Facebook)
-    contener(src, sw, sh) {
+    contener(src, sw, sh, zoom) {
       const { cv, ctx } = this;
       if (!sw || !sh) return;
-      const s = Math.min(cv.width / sw, cv.height / sh);
+      const s = Math.min(cv.width / sw, cv.height / sh) * (zoom || 1);
       const w = sw * s, h = sh * s;
       ctx.drawImage(src, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
     }
@@ -1482,35 +1731,83 @@ window.VS = window.VS || {};
       } else {
         this.fondoDifuso(it, src, sw, sh);
       }
-      this.contener(src, sw, sh);
+      // "Movimiento suave": acercamiento lento solo en imágenes, si se activa
+      this.contener(src, sw, sh, this.movimiento && it.tipo === "imagen" ? 1 + (zoom - 1) * 0.75 : 1);
+    }
+
+    // Dibuja un tramo completo (fondo + imagen o clip) con opacidad y desplazamiento opcionales
+    pintarTramo(tr, t, alpha, dx, escala) {
+      const { ctx, cv } = this;
+      const it = tr.it;
+      const local = Math.max(0, Math.min(t, tr.end) - tr.start);
+      const prog = (tr.end - tr.start) ? local / (tr.end - tr.start) : 0;
+      ctx.save();
+      ctx.globalAlpha = alpha == null ? 1 : alpha;
+      if (dx) ctx.translate(dx, 0);
+      if (escala && escala !== 1) {
+        ctx.translate(cv.width / 2, cv.height / 2);
+        ctx.scale(escala, escala);
+        ctx.translate(-cv.width / 2, -cv.height / 2);
+      }
+      if (it.tipo === "imagen") {
+        this.pintarFuente(it, it.el, it.el.naturalWidth, it.el.naturalHeight, 1 + 0.08 * prog); // Ken Burns solo al llenar
+      } else {
+        if (!this.reproduciendo && !this.exacto) {
+          const want = Math.min(local % (it.el.duration || 8), (it.el.duration || 8) - 0.05);
+          if (Math.abs(it.el.currentTime - want) > 0.3) it.el.currentTime = want;
+        }
+        this.pintarFuente(it, it.el, it.el.videoWidth, it.el.videoHeight, 1);
+      }
+      ctx.restore();
+    }
+
+    // Qué tramos se ven en el instante t (dos durante una transición)
+    visibles(t) {
+      const { tramos } = this.linea();
+      if (!tramos.length) return { tramos, i: -1 };
+      let i = tramos.findIndex((x) => t >= x.start && t < x.end);
+      if (i < 0) i = t < tramos[0].start ? 0 : tramos.length - 1;
+      const tr = tramos[i];
+      const D = Math.min(this.durTrans, (tr.end - tr.start) / 2);
+      const enTrans = this.transicion !== "ninguna" && i > 0 && t - tr.start < D;
+      return { tramos, i, tr, prev: enTrans ? tramos[i - 1] : null, p: enTrans ? (t - tr.start) / D : 1 };
     }
 
     dibujar(t) {
       const { cv, ctx } = this;
       ctx.fillStyle = "#05070e";
       ctx.fillRect(0, 0, cv.width, cv.height);
-      const { tramos } = this.linea();
-      const tr = tramos.find((x) => t >= x.start && t < x.end) || tramos[tramos.length - 1];
-      if (tr) {
-        const it = tr.it;
-        const local = t - tr.start;
-        const prog = (tr.end - tr.start) ? local / (tr.end - tr.start) : 0;
-        if (it.tipo === "imagen") {
-          this.pintarFuente(it, it.el, it.el.naturalWidth, it.el.naturalHeight, 1 + 0.08 * prog); // Ken Burns solo al llenar
-        } else {
-          if (!this.reproduciendo) {
-            const want = Math.min(local % (it.el.duration || 8), (it.el.duration || 8) - 0.05);
-            if (Math.abs(it.el.currentTime - want) > 0.3) it.el.currentTime = want;
-          }
-          this.pintarFuente(it, it.el, it.el.videoWidth, it.el.videoHeight, 1);
-        }
-        // fundido corto al entrar a cada tramo
-        if (local < 0.18 && tr.start > 0) {
-          ctx.fillStyle = `rgba(0,0,0,${0.55 * (1 - local / 0.18)})`;
-          ctx.fillRect(0, 0, cv.width, cv.height);
-        }
-      } else {
+      const v = this.visibles(t);
+      if (!v.tr) {
         this.vacio();
+      } else if (!v.prev) {
+        this.pintarTramo(v.tr, t);
+      } else {
+        const p = v.p, e = p * p * (3 - 2 * p); // suavizado
+        const tPrev = v.prev.end - 0.001;
+        switch (this.transicion) {
+          case "negro":
+            if (p < 0.5) {
+              this.pintarTramo(v.prev, tPrev);
+              ctx.fillStyle = `rgba(0,0,0,${Math.min(1, p * 2)})`;
+            } else {
+              this.pintarTramo(v.tr, t);
+              ctx.fillStyle = `rgba(0,0,0,${Math.min(1, (1 - p) * 2)})`;
+            }
+            ctx.fillRect(0, 0, cv.width, cv.height);
+            break;
+          case "deslizar":
+            this.pintarTramo(v.prev, tPrev, 1, -e * cv.width);
+            this.pintarTramo(v.tr, t, 1, (1 - e) * cv.width);
+            break;
+          case "zoom":
+            this.pintarTramo(v.prev, tPrev, 1, 0, 1 + 0.12 * e);
+            this.pintarTramo(v.tr, t, e, 0, 1.12 - 0.12 * e);
+            break;
+          default: // fundido cruzado
+            this.pintarTramo(v.prev, tPrev);
+            this.pintarTramo(v.tr, t, e);
+        }
       }
       this.dibujarSubtitulo(t);
       this.dibujarMarca();
@@ -1696,7 +1993,182 @@ window.VS = window.VS || {};
       return opciones.find((m) => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || "";
     }
 
-    async exportar() {
+    /* ---------- Exportación cuadro por cuadro (WebCodecs) ---------- */
+    static async codecs(w, h, bitrate) {
+      if (!window.VideoEncoder || !window.AudioEncoder || !window.VideoFrame || !window.AudioData) return null;
+      const ok = async (fn, cfg) => { try { return (await fn.isConfigSupported(cfg)).supported ? cfg : null; } catch (e) { return null; } };
+      const fps = 30;
+      let video = null, vtipo = "avc";
+      for (const c of ["avc1.640028", "avc1.4d0028", "avc1.42e028", "avc1.640032"]) {
+        video = await ok(VideoEncoder, { codec: c, width: w, height: h, bitrate, framerate: fps, avc: { format: "avc" } });
+        if (video) break;
+      }
+      let audio = await ok(AudioEncoder, { codec: "mp4a.40.2", sampleRate: 48000, numberOfChannels: 2, bitrate: 160000 });
+      let atipo = "aac";
+      if (!video) {
+        vtipo = "vp9";
+        video = await ok(VideoEncoder, { codec: "vp09.00.40.08", width: w, height: h, bitrate, framerate: fps });
+      }
+      if (!audio) {
+        atipo = "opus";
+        audio = await ok(AudioEncoder, { codec: "opus", sampleRate: 48000, numberOfChannels: 2, bitrate: 160000 });
+      }
+      if (!video || !audio) return null;
+      return { video, audio, vtipo, atipo, fps };
+    }
+
+    async blobDe(cual) {
+      if (this[cual + "Blob"]) return this[cual + "Blob"];
+      if (this[cual + "Url"]) return await (await fetch(this[cual + "Url"])).blob();
+      if (this[cual] && this[cual].src) return await (await fetch(this[cual].src)).blob();
+      return null;
+    }
+
+    // Mezcla voz + música (en bucle, con salida suave) en un búfer de 48 kHz estéreo
+    async mezclarAudio(total) {
+      const SR = 48000;
+      const largo = Math.max(1, Math.ceil(total * SR));
+      const off = new OfflineAudioContext(2, largo, SR);
+      const dec = new (window.AudioContext || window.webkitAudioContext)();
+      try {
+        const poner = async (blob, vol, loop) => {
+          if (!blob) return;
+          const buf = await dec.decodeAudioData(await blob.arrayBuffer());
+          const src = off.createBufferSource();
+          src.buffer = buf;
+          src.loop = !!loop;
+          const g = off.createGain();
+          g.gain.setValueAtTime(vol, 0);
+          if (loop) {
+            g.gain.setValueAtTime(vol, Math.max(0, total - 1));
+            g.gain.linearRampToValueAtTime(0, total);
+          }
+          src.connect(g).connect(off.destination);
+          src.start(0);
+        };
+        await poner(await this.blobDe("voz"), this.volVoz, false);
+        await poner(await this.blobDe("musica"), this.volMusica, true);
+      } finally {
+        dec.close && dec.close();
+      }
+      return off.startRendering();
+    }
+
+    async codificarAudio(buffer, cfg) {
+      const chunks = [];
+      let desc = null, err = null;
+      const enc = new AudioEncoder({
+        output: (c, meta) => {
+          if (meta && meta.decoderConfig && meta.decoderConfig.description && !desc) desc = new Uint8Array(meta.decoderConfig.description);
+          const d = new Uint8Array(c.byteLength);
+          c.copyTo(d);
+          chunks.push({ data: d, ts: c.timestamp, dur: c.duration || Math.round((1024 * 1e6) / 48000) });
+        },
+        error: (e) => (err = e),
+      });
+      enc.configure(cfg);
+      const N = 4800, ch = buffer.numberOfChannels, SR = buffer.sampleRate;
+      const L = buffer.getChannelData(0), R = ch > 1 ? buffer.getChannelData(1) : L;
+      for (let o = 0; o < buffer.length; o += N) {
+        const n = Math.min(N, buffer.length - o);
+        const plano = new Float32Array(n * 2);
+        plano.set(L.subarray(o, o + n), 0);
+        plano.set(R.subarray(o, o + n), n);
+        const ad = new AudioData({ format: "f32-planar", sampleRate: SR, numberOfFrames: n, numberOfChannels: 2, timestamp: Math.round((o * 1e6) / SR), data: plano });
+        enc.encode(ad);
+        ad.close();
+        if (err) throw err;
+      }
+      await enc.flush();
+      enc.close();
+      if (err) throw err;
+      return { chunks, desc };
+    }
+
+    // Lleva cada clip visible al cuadro exacto antes de dibujar
+    async prepararCuadro(t) {
+      const v = this.visibles(t);
+      const lista = [];
+      if (v.tr) lista.push([v.tr, t]);
+      if (v.prev) lista.push([v.prev, v.prev.end - 0.001]);
+      for (const [tr, tt] of lista) {
+        if (tr.it.tipo !== "video") continue;
+        const el = tr.it.el, d = el.duration || 8;
+        const local = Math.max(0, tt - tr.start);
+        const want = Math.min(local % d, d - 0.04);
+        if (Math.abs(el.currentTime - want) < 0.004 && el.readyState >= 2) continue;
+        await new Promise((res) => {
+          const fin = () => { clearTimeout(to); res(); };
+          const to = setTimeout(fin, 4000);
+          el.addEventListener("seeked", fin, { once: true });
+          el.currentTime = want;
+        });
+      }
+    }
+
+    async exportarCuadros(cfg, progreso) {
+      const { total } = this.linea();
+      if (!total) throw new Error("Agrega clips, imágenes o voz primero.");
+      const fps = cfg.fps, N = Math.ceil(total * fps);
+      this.detener(true);
+      this.items.forEach((it) => it.tipo === "video" && it.el.pause());
+      progreso && progreso(0, "audio");
+      const mezcla = await this.mezclarAudio(total);
+      const aud = await this.codificarAudio(mezcla, cfg.audio);
+
+      const vchunks = [];
+      let vdesc = null, err = null;
+      const venc = new VideoEncoder({
+        output: (c, meta) => {
+          if (meta && meta.decoderConfig && meta.decoderConfig.description && !vdesc) vdesc = new Uint8Array(meta.decoderConfig.description);
+          const d = new Uint8Array(c.byteLength);
+          c.copyTo(d);
+          vchunks.push({ data: d, ts: c.timestamp, dur: c.duration || Math.round(1e6 / fps), key: c.type === "key" });
+        },
+        error: (e) => (err = e),
+      });
+      venc.configure(cfg.video);
+      this.exacto = true;
+      try {
+        for (let i = 0; i < N; i++) {
+          if (this.cancelarExport) throw new Error("Exportación cancelada.");
+          const t = Math.min(i / fps, total - 0.0005);
+          await this.prepararCuadro(t);
+          this.dibujar(t);
+          const frame = new VideoFrame(this.cv, { timestamp: Math.round((i * 1e6) / fps), duration: Math.round(1e6 / fps) });
+          venc.encode(frame, { keyFrame: i % (fps * 2) === 0 });
+          frame.close();
+          if (err) throw err;
+          while (venc.encodeQueueSize > 6) await new Promise((r) => setTimeout(r, 5));
+          if (i % 10 === 0) {
+            progreso && progreso(i / N, "video");
+            await new Promise((r) => setTimeout(r, 0));
+          }
+        }
+        await venc.flush();
+      } finally {
+        this.exacto = false;
+        try { venc.close(); } catch (e) { /* */ }
+      }
+      if (err) throw err;
+      if (cfg.vtipo === "avc" && !vdesc) throw new Error("El codificador no entregó la configuración H.264.");
+      const blob = VS.mp4.mux(
+        { codec: cfg.vtipo, width: this.cv.width, height: this.cv.height, description: vdesc, chunks: vchunks },
+        { codec: cfg.atipo, sampleRate: 48000, channels: 2, bitrate: 160000, description: aud.desc, chunks: aud.chunks },
+      );
+      progreso && progreso(1, "listo");
+      this.dibujar(0);
+      return { blob, ext: "mp4", modo: cfg.vtipo === "avc" && cfg.atipo === "aac" ? "mp4" : "mp4-vp9" };
+    }
+
+    async exportar(progreso) {
+      this.cancelarExport = false;
+      const cfg = await Ensamblador.codecs(this.cv.width, this.cv.height, Math.round(8e6 * this.escala));
+      if (cfg) return this.exportarCuadros(cfg, progreso);
+      return this.exportarTiempoReal();
+    }
+
+    async exportarTiempoReal() {
       if (!window.MediaRecorder || !this.cv.captureStream) throw new Error("Tu navegador no permite exportar video. Usa Chrome o Edge en computador.");
       const mime = Ensamblador.tipoGrabacion();
       this.conectarAudio();
@@ -1717,7 +2189,7 @@ window.VS = window.VS || {};
       rec.stop();
       await fin;
       const tipo = (mime || "video/webm").split(";")[0];
-      return { blob: new Blob(partes, { type: tipo }), ext: tipo.includes("mp4") ? "mp4" : "webm" };
+      return { blob: new Blob(partes, { type: tipo }), ext: tipo.includes("mp4") ? "mp4" : "webm", modo: "tiempo-real" };
     }
   }
 
@@ -2370,7 +2842,7 @@ window.VS = window.VS || {};
           <button class="btn btn-ghost btn-sm" data-act="ficha">Descargar ficha</button>
           ${T.video ? `<button class="btn btn-ghost btn-sm" data-act="srt">Subtítulos .srt</button>` : ""}
           <a class="btn btn-violet btn-sm" href="#/voz/${p.id}">🎙️ Crear voz</a>
-          ${T.video ? `<a class="btn btn-ghost btn-sm" href="#/ensamblador/${p.id}">🎬 Ensamblar muestra</a>` : ""}
+          ${T.video ? `<button class="btn btn-violet btn-sm" data-act="crearAqui">✨ Crear video aquí</button><a class="btn btn-ghost btn-sm" href="#/ensamblador/${p.id}">🎬 Ensamblar con mis clips</a>` : ""}
         </div>
       </div>`;
 
@@ -2484,6 +2956,7 @@ window.VS = window.VS || {};
         case "ficha": descargar(`${slug(r.titulo)}-ficha.txt`, E.ficha(p, b)); break;
         case "srt": descargar(`${slug(r.titulo)}.srt`, E.srtEscenas(r)); break;
         case "kit": copiar(E.kitTexto(r) + (r.kit.comentario_fijado ? `\n\nComentario fijado: ${r.kit.comentario_fijado}` : ""), "Kit copiado ✓"); break;
+        case "crearAqui": asm().autoIA = p.id; ir("#/ensamblador/" + p.id); break;
         case "tts": copiar(`Style: ${r.voz.estilo || ""}\nVoice: ${(b && b.voz && b.voz.voice) || "Kore"}\n\n${E.textoHablado(r, p.tipo)}`, "Directiva de voz copiada ✓"); break;
       }
     });
@@ -2739,6 +3212,35 @@ window.VS = window.VS || {};
         if (t) { await inst.setAudio("voz", t.blob); A.vozKey = p.vozActiva; }
       } catch (e) { /* */ }
     }
+    if (!inst.items.length) await cargarEscenasIA(p, "clip");
+  }
+
+  // Carga en orden las imágenes o clips creados con IA para cada escena (prefiere el tipo indicado)
+  async function cargarEscenasIA(p, prefiere) {
+    const inst = asm().inst;
+    const pre = p.id + "__esc__";
+    let keys = [];
+    try { keys = await VS.media.keys(pre); } catch (e) { return 0; }
+    if (!keys.length) return 0;
+    const porEsc = {};
+    keys.forEach((k) => {
+      const m = /^(\d+)__(img|clip)$/.exec(k.slice(pre.length));
+      if (m) (porEsc[m[1]] = porEsc[m[1]] || {})[m[2]] = k;
+    });
+    const otro = prefiere === "clip" ? "img" : "clip";
+    inst.items.forEach((it) => URL.revokeObjectURL(it.url));
+    inst.items = [];
+    let n = 0;
+    for (const esc_ of Object.keys(porEsc).sort()) {
+      const k = porEsc[esc_][prefiere] || porEsc[esc_][otro];
+      const t = await VS.media.get(k);
+      if (!t || !t.blob) continue;
+      const esClip = k.endsWith("__clip");
+      await inst.agregarArchivo(new File([t.blob], `escena-${esc_}${esClip ? ".mp4" : ".jpg"}`, { type: t.blob.type || (esClip ? "video/mp4" : "image/jpeg") }));
+      n++;
+    }
+    if (n && !inst.items.some((it) => it.tipo === "video")) inst.movimiento = true;
+    return n;
   }
 
   async function vEns(id) {
@@ -2762,6 +3264,7 @@ window.VS = window.VS || {};
               <b>Arrastra aquí tus clips de Veo o imágenes</b><br><span class="small">o haz clic para elegir · MP4, MOV, JPG, PNG</span>
             </label>
             <div class="clips" id="aClips"></div>
+            ${p && p.resultado && p.resultado.escenas && p.resultado.escenas.length ? `<button class="btn btn-violet btn-block" id="aIA" style="margin-top:10px">✨ Crear imágenes o clips con IA desde el guion</button>` : ""}
           </div>
           <div class="card">
             <div class="card-head"><span class="card-title">2 · Audio</span></div>
@@ -2804,8 +3307,13 @@ window.VS = window.VS || {};
               <label class="field"><span>Imágenes y clips</span><select id="aEnc">${opciones([["completa", "Completas, fondo difuminado (como Instagram)"], ["color", "Completas, fondo de color"], ["llenar", "Llenar la pantalla (recorta bordes)"]], inst.encuadre)}</select></label>
               <label class="field" id="aColorFondoBox" ${inst.encuadre === "color" ? "" : "hidden"}><span>Fondo</span><input type="color" id="aColorFondo" value="${inst.colorFondo}" style="height:42px;width:60px;padding:4px"></label>
             </div>
+            <div class="row">
+              <label class="field"><span>Transición</span><select id="aTrans">${opciones([["fundido", "Fundido cruzado"], ["negro", "Fundido a negro"], ["deslizar", "Deslizar"], ["zoom", "Zoom"], ["ninguna", "Corte directo"]], inst.transicion)}</select></label>
+              <label class="field"><span>Velocidad</span><select id="aTransDur">${opciones([[0.3, "Rápida"], [0.6, "Normal"], [1, "Lenta"]], inst.durTrans)}</select></label>
+            </div>
             <label class="field"><span>Nombre en pantalla</span><input type="text" id="aMarca" value="${esc(inst.marca)}" placeholder="Opcional"></label>
             <div class="checks">
+              <label class="check"><input type="checkbox" id="aMov" ${inst.movimiento ? "checked" : ""}> Movimiento suave en imágenes</label>
               <label class="check"><input type="checkbox" id="aAjus" ${inst.ajustar ? "checked" : ""}> Repartir clips en la duración de la voz</label>
               <label class="check"><input type="checkbox" id="aMuestra" ${inst.muestra ? "checked" : ""}> Marca de agua “MUESTRA”</label>
             </div>
@@ -2827,7 +3335,7 @@ window.VS = window.VS || {};
                 <button class="btn btn-gold" id="aExp">⚡ Exportar video</button>
               </div>
             </div>
-            <p class="note" style="margin-top:12px">La exportación se graba en tiempo real: un video de 45 s tarda unos 45 s. Mantén esta pestaña visible mientras termina. Formato de salida en este navegador: <b>${mime ? (mime.includes("mp4") ? "MP4" : "WebM") : "no disponible"}</b>.</p>
+            <p class="note" style="margin-top:12px">La exportación arma el video cuadro por cuadro en MP4: subtítulos y transiciones quedan exactos aunque el PC sea lento o cambies de ventana. Puede tardar un poco más que la duración del video.</p>
           </div>
         </div>
       </div>`;
@@ -2837,6 +3345,7 @@ window.VS = window.VS || {};
     await opcionesVoz(p);
     rehacerSubs();
     eventosEns(p);
+    if (p && A.autoIA === p.id) { A.autoIA = null; abrirIA(p); }
   }
 
   async function opcionesVoz(p) {
@@ -2965,6 +3474,11 @@ window.VS = window.VS || {};
     $("#aColorFondo").addEventListener("input", (e) => { inst.colorFondo = e.target.value; inst.dibujar(0); });
     $("#aAjus").addEventListener("change", (e) => { inst.ajustar = e.target.checked; rehacerSubs(); });
     $("#aMuestra").addEventListener("change", (e) => { inst.muestra = e.target.checked; inst.dibujar(0); });
+    $("#aMov").addEventListener("change", (e) => { inst.movimiento = e.target.checked; inst.dibujar(0); });
+    $("#aTrans").addEventListener("change", (e) => { inst.transicion = e.target.value; inst.dibujar(0); });
+    $("#aTransDur").addEventListener("change", (e) => { inst.durTrans = Number(e.target.value); });
+    const bIA = $("#aIA");
+    if (bIA) bIA.addEventListener("click", () => abrirIA(p));
 
     inst.alAvanzar = (t, total) => {
       const bar = $("#aBar"), tm = $("#aTime");
@@ -2981,17 +3495,124 @@ window.VS = window.VS || {};
     $("#aExp").addEventListener("click", async (e) => {
       const btn = e.currentTarget;
       if (!inst.linea().total) return toast("Agrega clips, imágenes o voz primero.", "error");
-      cargando(btn, true, "Grabando…");
+      cargando(btn, true, "Preparando…");
       try {
-        const { blob, ext } = await inst.exportar();
+        const { blob, ext, modo } = await inst.exportar((f, fase) => {
+          btn.innerHTML = `<span class="spin"></span> ${fase === "audio" ? "Mezclando audio…" : `Armando video ${Math.round(f * 100)}%`}`;
+          const bar = $("#aBar");
+          if (bar) bar.style.width = Math.round(f * 100) + "%";
+        });
         descargar(`${slug(p ? p.titulo : "muestra")}${inst.muestra ? "-muestra" : ""}.${ext}`, blob);
         if (p && (p.estado === "guion" || p.estado === "produccion")) { p.estado = "listo"; S.upsertProject(p); }
         toast("Video exportado ✓", "ok");
+        if (modo === "tiempo-real") toast("Este navegador no permite el modo cuadro por cuadro: se grabó en tiempo real. Para mejor resultado usa Chrome o Edge actualizados.", "error");
+        if (modo === "mp4-vp9") toast("Se exportó en MP4 con VP9. Si una red social no lo acepta, exporta desde Chrome o Edge en Windows o Mac.");
       } catch (err) {
         toast(err.message || "No se pudo exportar.", "error");
       } finally {
         cargando(btn, false);
       }
+    });
+  }
+
+  /* ---------- Crear imágenes o clips con IA desde el guion ---------- */
+  async function abrirIA(p) {
+    if (!p || !p.resultado) return;
+    const A = asm(), inst = A.inst;
+    const r = p.resultado, escenas = r.escenas || [];
+    const hayKey = !!S.state.settings.apiKey;
+    const yaImg = new Set();
+    try { (await VS.media.keys(p.id + "__esc__")).forEach((k) => k.endsWith("__img") && yaImg.add(k.split("__esc__")[1].slice(0, 2))); } catch (e) { /* */ }
+    const m = modal(`
+      <div class="card-head"><h2>✨ Crear con IA desde el guion</h2><button class="btn btn-ghost btn-sm" data-close>Cerrar</button></div>
+      ${hayKey ? "" : `<p class="note warn" style="margin-bottom:12px">Agrega tu API key de Gemini en <a href="#/ajustes">Ajustes</a> para crear imágenes y clips.</p>`}
+      <div class="field"><span>Qué crear para cada escena</span>
+        <div class="btn-stack">
+          <label class="check"><input type="radio" name="iaT" value="img" checked> <b>Imágenes con IA</b> <span class="muted small">· Nano Banana · rápido y económico, con movimiento suave</span></label>
+          <label class="check"><input type="radio" name="iaT" value="clip"> <b>Clips de video con IA</b> <span class="muted small">· Gemini Omni Flash · más realista, tarda varios minutos y cuesta más</span></label>
+        </div>
+      </div>
+      <label class="check" id="iaBaseBox" style="margin-bottom:10px" hidden><input type="checkbox" id="iaBase" checked> Usar la imagen de cada escena como primer cuadro del clip (personaje y estilo más coherentes)</label>
+      <div class="list" style="max-height:260px;overflow:auto;margin-bottom:12px">
+        ${escenas.map((e, i) => `
+          <label class="list-item check" style="cursor:pointer;align-items:flex-start">
+            <span style="min-width:0"><input type="checkbox" data-iae="${i}" checked> <b>Escena ${e.n}</b> <span class="muted small">· ${esc(e.visual || e.locucion.slice(0, 60))}</span></span>
+            <span class="chip" id="iaE-${i}">${yaImg.has(String(i + 1).padStart(2, "0")) ? "Tiene imagen" : "Pendiente"}</span>
+          </label>`).join("")}
+      </div>
+      <label class="check" style="margin-bottom:12px"><input type="checkbox" id="iaRep" checked> Reemplazar lo que hay en el ensamblador</label>
+      <p class="small muted" style="margin-bottom:12px">Se crean en el formato del video (${esc(inst.formato)}). Quedan guardados en este PC con el proyecto. El uso de imágenes y video se cobra según tu plan de Gemini.</p>
+      <div class="btn-row" style="justify-content:flex-end">
+        <button class="btn btn-red btn-sm" id="iaStop" disabled>Detener</button>
+        <button class="btn btn-gold" id="iaGo" ${hayKey ? "" : "disabled"}>Crear</button>
+      </div>`);
+    const q = (s_) => $(s_, m.el);
+    const tipo = () => ($("[name=iaT]:checked", m.el) || {}).value || "img";
+    m.el.addEventListener("change", (e) => { if (e.target.name === "iaT") q("#iaBaseBox").hidden = tipo() !== "clip"; });
+    let parar = false;
+    q("#iaStop").addEventListener("click", () => { parar = true; toast("Deteniendo después de la escena actual…"); });
+    const reintento = async (fn, chip) => {
+      for (let k = 1; ; k++) {
+        try { return await fn(); } catch (e) {
+          const temporal = !e.status || e.status === 429 || e.status >= 500;
+          if (!temporal || k >= 3 || parar) throw e;
+          chip.textContent = `Reintento en ${20 * k} s`;
+          await new Promise((res) => setTimeout(res, 20000 * k));
+        }
+      }
+    };
+    q("#iaGo").addEventListener("click", async (ev) => {
+      const btn = ev.currentTarget;
+      const elegidas = $$("[data-iae]", m.el).filter((x) => x.checked).map((x) => Number(x.dataset.iae));
+      if (!elegidas.length) return toast("Elige al menos una escena.", "error");
+      const t = tipo(), usarBase = q("#iaBase").checked;
+      cargando(btn, true, "Creando…");
+      q("#iaStop").disabled = false;
+      parar = false;
+      let ok = 0;
+      for (const i of elegidas) {
+        if (parar) break;
+        const e = escenas[i], n = String(i + 1).padStart(2, "0"), chip = q("#iaE-" + i);
+        chip.className = "chip chip-gold";
+        chip.textContent = t === "img" ? "Creando imagen…" : "Creando clip…";
+        try {
+          let blob;
+          if (t === "img") {
+            const prompt = `${r.ancla_visual ? r.ancla_visual + ". " : ""}${e.prompt_imagen || e.visual || e.locucion}. No text, no letters, no logos, no watermark.`;
+            blob = await reintento(() => G.imagen(prompt, inst.formato), chip);
+          } else {
+            let base = null;
+            if (usarBase) { const tb = await VS.media.get(`${p.id}__esc__${n}__img`); base = tb && tb.blob; }
+            blob = await reintento(() => G.videoClip(e.prompt_veo || e.visual || e.locucion, inst.formato, base), chip);
+          }
+          await VS.media.put(`${p.id}__esc__${n}__${t}`, { blob, voice: "", estilo: "", origen: "IA", fecha: Date.now() });
+          chip.className = "chip chip-green";
+          chip.textContent = "Listo ✓";
+          ok++;
+        } catch (err) {
+          chip.className = "chip chip-red";
+          chip.textContent = "Error";
+          chip.title = err.message;
+          toast(`Escena ${e.n}: ${err.message}`, "error");
+        }
+      }
+      q("#iaStop").disabled = true;
+      cargando(btn, false);
+      if (!ok) return;
+      if (q("#iaRep").checked) {
+        await cargarEscenasIA(p, t);
+      } else {
+        for (const i of elegidas) {
+          const n = String(i + 1).padStart(2, "0");
+          const tt = await VS.media.get(`${p.id}__esc__${n}__${t}`);
+          if (tt && tt.blob) await inst.agregarArchivo(new File([tt.blob], `escena-${n}${t === "clip" ? ".mp4" : ".jpg"}`, { type: tt.blob.type }));
+        }
+      }
+      if (t === "img") inst.movimiento = true;
+      if (p.estado === "guion") { p.estado = "produccion"; S.upsertProject(p); }
+      toast(`${ok} ${t === "img" ? "imágenes" : "clips"} listos en el ensamblador ✓`, "ok");
+      m.cerrar();
+      vEns(p.id);
     });
   }
 
@@ -3150,6 +3771,12 @@ window.VS = window.VS || {};
               <label class="field"><span>Modelo de voz</span><input type="text" id="sMV" value="${esc(s.modelTTS)}" list="lMV"></label>
             </div>
             <datalist id="lMT"><option value="gemini-3.8-flash"><option value="gemini-3.6-flash"><option value="gemini-3.5-flash-lite"><option value="gemini-4-argon"><option value="gemini-flash-latest"></datalist>
+            <div class="row">
+              <label class="field"><span>Modelo de imágenes</span><input type="text" id="sMI" value="${esc(s.modelImage || "gemini-nano-banana-2.1")}" list="lMI"></label>
+              <label class="field"><span>Modelo de video</span><input type="text" id="sMVi" value="${esc(s.modelVideo || "gemini-omni-1.1-flash")}" list="lMVi"></label>
+            </div>
+            <datalist id="lMI"><option value="gemini-nano-banana-2.1"><option value="gemini-3.1-flash-lite-image"><option value="gemini-3-pro-image"></datalist>
+            <datalist id="lMVi"><option value="gemini-omni-1.1-flash"></datalist>
             <datalist id="lMV"><option value="gemini-3.8-flash-tts"><option value="gemini-3.8-flash-lite-tts"><option value="gemini-3.1-flash-tts-preview"></datalist>
             <div class="btn-row"><button class="btn btn-gold" id="sSave">Guardar</button><button class="btn btn-ghost" id="sTest">Probar conexión</button></div>
             <p class="note" style="margin-top:12px">${S.cloud.on ? "La llave viaja a tus equipos dentro de tu estudio privado" : "La llave se guarda solo en este navegador"} y nunca va en los respaldos. Restríngela en Google Cloud a la dirección de tu sitio de Netlify.</p>
@@ -3187,6 +3814,7 @@ window.VS = window.VS || {};
       Object.assign(s, {
         appName: $("#sName").value.trim() || "Vocalis Studio",
         apiKey: $("#sKey").value.trim(), modelText: $("#sMT").value.trim() || "gemini-3.8-flash", modelTTS: $("#sMV").value.trim() || "gemini-3.8-flash-tts",
+        modelImage: $("#sMI").value.trim() || "gemini-nano-banana-2.1", modelVideo: $("#sMVi").value.trim() || "gemini-omni-1.1-flash",
         wps: Math.max(1.5, Math.min(4, Number($("#sWps").value) || 2.5)), clip: Number($("#sClip").value), promptLang: $("#sLang").value,
       });
       S.guardarAjustes();
