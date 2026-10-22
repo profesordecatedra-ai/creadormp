@@ -344,6 +344,7 @@ window.VS = window.VS || {};
       modelTTS: "gemini-3.8-flash-tts",
       modelImage: "gemini-nano-banana-2.1",
       modelVideo: "gemini-omni-1.1-flash",
+      modoPro: false,
       wps: 2.5,
       clip: 8,
       promptLang: "en",
@@ -816,6 +817,46 @@ Responde SOLO con JSON válido, sin texto adicional, con esta forma exacta:
 { ${pide.map(([t]) => `"${t}": ["tema 1", "tema 2"]`).join(", ")} }`;
   }
 
+  /* ---------- Lote para pegar en Gemini (Modo Pro) ---------- */
+  function promptLote(b, piezas, usados) {
+    const bloques = {};
+    piezas.forEach((x) => {
+      const k = x.tipo + "-" + x.duracion;
+      if (!bloques[k]) {
+        const T = TIPOS[x.tipo];
+        bloques[k] = promptMaestro({ tipo: x.tipo, duracion: x.duracion, clip: VS.store.state.settings.clip, formato: T.video ? T.formato : "audio", audioVeo: "ambiente", idioma: b.idioma, atmosfera: ATMOSFERAS[0], tema: "(el de cada pieza)", cta: "" }, b);
+      }
+    });
+    const lista = piezas.map((x, i) => `${i + 1}. ${TIPOS[x.tipo].label}, ${x.duracion} s · BLOQUE ${x.tipo}-${x.duracion} · tema: ${x.tema || "elige uno distinto, concreto y atractivo"}`).join("\n");
+    return `Vas a crear ${piezas.length} piezas de contenido para la misma empresa, de una sola vez.
+
+LISTA DE PIEZAS (en este orden)
+${lista}
+
+No repitas temas entre piezas${usados && usados.length ? " ni estos ya usados: " + usados.slice(0, 30).join("; ") : ""}.
+
+RESPUESTA
+Responde SOLO con JSON válido, sin texto antes ni después, con esta forma:
+{ "piezas": [ { "n": 1, "tipo": "short", ...el JSON completo que pide el BLOQUE de esa pieza... }, ... ] }
+Cada elemento sigue exactamente las reglas y el FORMATO JSON de su BLOQUE (ignora en los bloques la frase de responder un solo JSON).
+
+${Object.entries(bloques).map(([k, t]) => `=================== BLOQUE ${k} ===================\n${t}`).join("\n\n")}`;
+  }
+
+  function parseLote(text) {
+    let t = String(text || "").trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+    const a = t.search(/[[{]/), z = Math.max(t.lastIndexOf("}"), t.lastIndexOf("]"));
+    if (a < 0 || z < 0) throw new Error("No encontré JSON. Copia la respuesta completa de Gemini.");
+    t = t.slice(a, z + 1);
+    let o;
+    try { o = JSON.parse(t); } catch (e) {
+      try { o = JSON.parse(t.replace(/[“”]/g, '"').replace(/,\s*([}\]])/g, "$1")); } catch (e2) { throw new Error("El JSON viene incompleto. Pídele a Gemini que lo repita completo o que continúe."); }
+    }
+    const arr = Array.isArray(o) ? o : o.piezas;
+    if (!Array.isArray(arr) || !arr.length) throw new Error("La respuesta no trae la lista de piezas.");
+    return arr.map((x) => ({ n: Number(x.n) || 0, tipo: x.tipo, r: normalizar(x) }));
+  }
+
   function parseTemas(text) {
     let t = String(text || "").trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
     const a = t.indexOf("{"), z = t.lastIndexOf("}");
@@ -1149,7 +1190,7 @@ FORMATO JSON EXACTO
     return srt(out);
   }
 
-  VS.engine = { TIPOS, ATMOSFERAS, ESTADOS, plataformasVideo, plan, promptMaestro, promptTemas, parseTemas, parse, normalizar, borrador, textoHablado, contar, prompsVeoTexto, kitTexto, ficha, subtitulos, srt, srtEscenas };
+  VS.engine = { TIPOS, ATMOSFERAS, ESTADOS, plataformasVideo, plan, promptMaestro, promptTemas, parseTemas, promptLote, parseLote, parse, normalizar, borrador, textoHablado, contar, prompsVeoTexto, kitTexto, ficha, subtitulos, srt, srtEscenas };
 })(window.VS);
 
 </script>
@@ -2295,6 +2336,93 @@ window.VS = window.VS || {};
 
 </script>
   <script>
+/* Protección de la app: cifra el archivo completo con tu contraseña (AES-256-GCM, clave derivada con PBKDF2).
+   El archivo protegido solo contiene una pantalla de contraseña y datos cifrados. */
+window.VS = window.VS || {};
+(function (VS) {
+  "use strict";
+  const ITER = 600000;
+  const MARCA = "vocalis-protegido";
+
+  const aB64 = (u) => {
+    let s = "";
+    for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+    return btoa(s);
+  };
+
+  // Pantalla de entrada del archivo protegido (sin plantillas `${}` para que sea simple y segura)
+  function cargador(datos) {
+    const css = [
+      "*{box-sizing:border-box}html,body{height:100%}",
+      "body{margin:0;display:grid;place-items:center;padding:20px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#eef1f8;",
+      "background:radial-gradient(800px 500px at 100% -10%,rgba(139,92,246,.18),transparent 60%),radial-gradient(700px 500px at -10% 20%,rgba(245,165,36,.10),transparent 60%),#090d1a}",
+      ".box{width:min(380px,100%);padding:28px 24px;border-radius:20px;background:linear-gradient(180deg,#111a2f,#0d1426);border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 70px -30px rgba(0,0,0,.8)}",
+      ".ic{width:56px;height:56px;border-radius:15px;display:grid;place-items:center;margin-bottom:16px;background:linear-gradient(135deg,#8b5cf6,#ec4899);overflow:hidden}",
+      ".ic.logo{background:#fff}.ic img{width:100%;height:100%;object-fit:contain}",
+      "h1{margin:0 0 4px;font-size:1.4rem;letter-spacing:-.02em}p{margin:0 0 18px;color:#94a0bb;font-size:.92rem}",
+      "input[type=password]{width:100%;padding:13px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:#0a1020;color:#eef1f8;font-size:1rem;margin-bottom:12px}",
+      "input[type=password]:focus{outline:none;border-color:#f5a524;box-shadow:0 0 0 3px rgba(245,165,36,.18)}",
+      "label{display:flex;gap:8px;align-items:center;font-size:.88rem;color:#94a0bb;margin-bottom:14px;cursor:pointer}input[type=checkbox]{accent-color:#f5a524;width:16px;height:16px}",
+      "button{width:100%;padding:13px;border:0;border-radius:12px;font-weight:800;font-size:1rem;cursor:pointer;color:#1a1205;background:linear-gradient(180deg,#ffcf5c,#f5a524)}button:disabled{opacity:.6}",
+      ".err{color:#f87171;font-size:.88rem;margin:-4px 0 12px}[hidden]{display:none!important}",
+    ].join("");
+    const js = [
+      "(function(){",
+      "var D=" + JSON.stringify(datos) + ";",
+      "var K='vocalis.llave.app';",
+      "function b64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}",
+      "function u2b(u){var s='';for(var i=0;i<u.length;i++)s+=String.fromCharCode(u[i]);return btoa(s);}",
+      "function abrir(pt){var html=new TextDecoder().decode(pt);document.open();document.write(html);document.close();}",
+      "function descifrar(key){return crypto.subtle.decrypt({name:'AES-GCM',iv:b64(D.i)},key,b64(D.c));}",
+      "function derivar(pw){return crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']).then(function(base){",
+      "return crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(D.s),iterations:D.n,hash:'SHA-256'},base,{name:'AES-GCM',length:256},true,['decrypt']);});}",
+      "try{var st=JSON.parse(localStorage.getItem('vocalis.studio.v2')||'null');if(st&&st.settings){",
+      "if(st.settings.appName){document.getElementById('nm').textContent=st.settings.appName;document.title=st.settings.appName+' · Entrar';}",
+      "if(st.settings.logo&&/^data:image\\//.test(st.settings.logo)){var ic=document.getElementById('ic');ic.textContent='';var im=document.createElement('img');im.src=st.settings.logo;im.alt='';ic.appendChild(im);ic.className='ic logo';}}}catch(e){}",
+      "var f=document.getElementById('f'),pw=document.getElementById('pw'),b=document.getElementById('b'),er=document.getElementById('er'),rec=document.getElementById('rec');",
+      "function mostrar(){f.hidden=false;pw.focus();}",
+      "try{var g=JSON.parse(localStorage.getItem(K)||'null');",
+      "if(g&&g.s===D.s){crypto.subtle.importKey('raw',b64(g.k),{name:'AES-GCM'},false,['decrypt']).then(descifrar).then(abrir).catch(function(){try{localStorage.removeItem(K);}catch(x){}mostrar();});}else{mostrar();}",
+      "}catch(e){mostrar();}",
+      "f.addEventListener('submit',function(e){e.preventDefault();b.disabled=true;b.textContent='Abriendo…';er.hidden=true;var llave;",
+      "derivar(pw.value).then(function(k){llave=k;return descifrar(k);}).then(function(pt){",
+      "if(rec.checked){return crypto.subtle.exportKey('raw',llave).then(function(raw){try{localStorage.setItem(K,JSON.stringify({s:D.s,k:u2b(new Uint8Array(raw))}));}catch(x){}abrir(pt);});}",
+      "abrir(pt);}).catch(function(){setTimeout(function(){er.hidden=false;b.disabled=false;b.textContent='Entrar';pw.select();},600);});});",
+      "})();",
+    ].join("\n");
+    const mic = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v4"/></svg>';
+    return [
+      "<!doctype html>",
+      '<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
+      '<meta name="robots" content="noindex,nofollow"><meta name="' + MARCA + '" content="1">',
+      "<title>Estudio privado · Entrar</title><style>" + css + "</style></head><body>",
+      '<div class="box"><div class="ic" id="ic">' + mic + "</div>",
+      '<h1 id="nm">Estudio privado</h1><p>Ingresa tu contraseña para abrir la app.</p>',
+      '<form id="f" hidden><input type="password" id="pw" placeholder="Contraseña" autocomplete="current-password" required>',
+      '<div class="err" id="er" hidden>Contraseña incorrecta.</div>',
+      '<label><input type="checkbox" id="rec"> Recordar en este equipo</label>',
+      '<button id="b" type="submit">Entrar</button></form></div>',
+      "<script>" + js + "<\/script></body></html>",
+    ].join("\n");
+  }
+
+  async function proteger(html, clave) {
+    if (html.includes('name="' + MARCA + '"')) throw new Error("Ese archivo ya está protegido. Elige el index.html sin proteger que recibiste.");
+    if (!/VS\.Ensamblador|Estudio de producción/.test(html)) throw new Error("Ese archivo no parece ser la app. Elige el index.html de la app.");
+    const sal = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(clave), "PBKDF2", false, ["deriveKey"]);
+    const llave = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: sal, iterations: ITER, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["encrypt"]);
+    const cifrado = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, llave, new TextEncoder().encode(html)));
+    const salida = cargador({ s: aB64(sal), i: aB64(iv), n: ITER, c: aB64(cifrado) });
+    return new Blob([salida], { type: "text/html;charset=utf-8" });
+  }
+
+  VS.protector = { proteger, LLAVE: "vocalis.llave.app" };
+})(window.VS);
+
+</script>
+  <script>
 /* Interfaz del estudio: Panel, Guiones, Automático, Voz, Ensamblar, Empresas, Ajustes y Ayuda. */
 (function (VS) {
   "use strict";
@@ -2307,6 +2435,7 @@ window.VS = window.VS || {};
   const LINKS = {
     flow: "https://labs.google/fx/tools/flow",
     gemini: "https://gemini.google.com/app",
+    aistudio: "https://aistudio.google.com/",
     llave: "https://aistudio.google.com/apikey",
   };
   const COL = { idea: "#94a0bb", guion: "#60a5fa", produccion: "#f5a524", listo: "#34d399", publicado: "#c4b5fd" };
@@ -2334,6 +2463,30 @@ window.VS = window.VS || {};
     }
     toast(msg || "Copiado ✓", "ok");
   }
+
+  const modoPro = () => !!S.state.settings.modoPro;
+  const abrirEn = (url) => window.open(url, "_blank", "noopener");
+  async function leerPortapapeles() {
+    try { return await navigator.clipboard.readText(); } catch (e) { return ""; }
+  }
+  // Pegar una respuesta de Gemini: intenta leer el portapapeles; si no hay JSON, abre un cuadro para pegar a mano
+  async function pegarRespuesta(titulo, alImportar) {
+    const t = await leerPortapapeles();
+    if (t && t.includes("{")) {
+      try { alImportar(t); return; } catch (e) { toast(e.message, "error"); }
+    }
+    const m = modal(`
+      <div class="card-head"><h2>${esc(titulo)}</h2><button class="btn btn-ghost btn-sm" data-close>Cerrar</button></div>
+      <p class="muted small" style="margin-bottom:10px">Copia toda la respuesta de Gemini (el JSON) y pégala aquí con Ctrl + V.</p>
+      <textarea id="mTxt" class="code" rows="12" placeholder='{ ... }'></textarea>
+      <div class="btn-row" style="margin-top:12px;justify-content:flex-end"><button class="btn btn-gold" id="mOk">Importar</button></div>`);
+    $("#mTxt", m.el).focus();
+    $("#mOk", m.el).addEventListener("click", () => {
+      try { alImportar($("#mTxt", m.el).value); m.cerrar(); } catch (err) { toast(err.message, "error"); }
+    });
+  }
+  // Ordena archivos por nombre en orden natural (escena-2 antes que escena-10)
+  const ordenNatural = (files) => files.slice().sort((a, b) => a.name.localeCompare(b.name, "es", { numeric: true, sensitivity: "base" }));
 
   function descargar(nombre, data, mime) {
     const blob = data instanceof Blob ? data : new Blob([data], { type: (mime || "text/plain") + ";charset=utf-8" });
@@ -2441,7 +2594,7 @@ window.VS = window.VS || {};
     if (!el) return;
     el.innerHTML = `
       <div><span class="dot ${nube[0]}"></span>${nube[1]}</div>
-      <div style="margin-top:6px">${k ? `<span class="dot on"></span>Gemini conectado` : `<span class="dot"></span>Sin API key`}</div>`;
+      <div style="margin-top:6px">${S.state.settings.modoPro ? `<span class="dot warn"></span>Modo Pro · sin API` : k ? `<span class="dot on"></span>Gemini conectado` : `<span class="dot"></span>Sin API key`}</div>`;
   }
   VS.alSincronizar = estadoApi;
 
@@ -2614,11 +2767,15 @@ window.VS = window.VS || {};
             <label class="field"><span>Llamado a la acción</span><input type="text" id="fCta" value="${esc(p.cta)}" placeholder="${esc(b ? b.cta : "Ej: Pide por WhatsApp")}"></label>
             <div class="plan" id="plan"></div>
             <div class="btn-stack">
+              ${modoPro() ? `
+              <button class="btn btn-gold btn-block" id="bPrompt">📋 1 · Copiar prompt y abrir Gemini</button>
+              <button class="btn btn-violet btn-block" id="bPegar">📥 2 · Pegar la respuesta de Gemini</button>
+              <button class="btn btn-ghost btn-sm" id="bGen">✨ Generar con API</button>` : `
               <button class="btn btn-gold btn-block" id="bGen">✨ Generar con Gemini</button>
               <div class="row">
                 <button class="btn btn-ghost" id="bPrompt" title="Para pegar en Gemini o AI Studio">Copiar prompt maestro</button>
                 <button class="btn btn-ghost" id="bPegar">Pegar respuesta</button>
-              </div>
+              </div>`}
               <button class="btn btn-ghost btn-sm" id="bBorr">⚡ Borrador rápido sin IA</button>
               <p class="small muted" style="text-align:center">Abrir <a href="${LINKS.gemini}" target="_blank" rel="noopener">Gemini ↗</a> · <a href="${LINKS.flow}" target="_blank" rel="noopener">Flow ↗</a></p>
             </div>
@@ -2731,26 +2888,14 @@ window.VS = window.VS || {};
         cargando(btn, false);
       }
     });
-    $("#bPrompt").addEventListener("click", () => {
-      copiar(E.promptMaestro(p, S.brand(p.marcaId)), "Prompt copiado. Pégalo en Gemini y luego usa “Pegar respuesta”.");
+    $("#bPrompt").addEventListener("click", async () => {
+      await copiar(E.promptMaestro(p, S.brand(p.marcaId)), modoPro() ? "Prompt copiado. En Gemini pega con Ctrl + V, y al terminar copia toda la respuesta." : "Prompt copiado. Pégalo en Gemini y luego usa “Pegar respuesta”.");
+      if (modoPro()) abrirEn(LINKS.gemini);
     });
-    $("#bPegar").addEventListener("click", () => {
-      const m = modal(`
-        <div class="card-head"><h2>Pegar respuesta de Gemini</h2><button class="btn btn-ghost btn-sm" data-close>Cerrar</button></div>
-        <p class="muted small" style="margin-bottom:10px">Copia toda la respuesta de Gemini (el JSON) y pégala aquí.</p>
-        <textarea id="mTxt" class="code" rows="12" placeholder='{ "titulo": ... }'></textarea>
-        <div class="btn-row" style="margin-top:12px;justify-content:flex-end"><button class="btn btn-gold" id="mOk">Importar guion</button></div>`);
-      $("#mTxt", m.el).focus();
-      $("#mOk", m.el).addEventListener("click", () => {
-        try {
-          aplicar(E.parse($("#mTxt", m.el).value));
-          m.cerrar();
-          toast("Guion importado ✓", "ok");
-        } catch (err) {
-          toast(err.message, "error");
-        }
-      });
-    });
+    $("#bPegar").addEventListener("click", () => pegarRespuesta("Pegar respuesta de Gemini", (t) => {
+      aplicar(E.parse(t));
+      toast("Guion importado ✓", "ok");
+    }));
     $("#bBorr").addEventListener("click", () => {
       if (p.resultado && !confirm("¿Reemplazar el guion actual por un borrador rápido?")) return;
       aplicar(E.borrador(p, S.brand(p.marcaId)));
@@ -2837,7 +2982,7 @@ window.VS = window.VS || {};
         ${r.gancho ? `<p class="hook">Gancho: ${esc(r.gancho)}</p>` : ""}
         <div class="btn-row" style="margin-top:10px">
           ${T.video
-            ? `<button class="btn btn-green btn-sm" data-act="veoAll">Copiar todos los prompts Veo</button><a class="btn btn-gold btn-sm" href="${LINKS.flow}" target="_blank" rel="noopener">Abrir Flow ↗</a>`
+            ? `<button class="btn btn-green btn-sm" data-act="veoAll">Copiar todos los prompts Veo</button><a class="btn btn-gold btn-sm" href="${LINKS.flow}" target="_blank" rel="noopener">Abrir Flow ↗</a><button class="btn btn-ghost btn-sm" data-act="imgAll">🖼️ Copiar prompts de imagen y abrir Gemini</button>`
             : `<button class="btn btn-green btn-sm" data-copy="prompt_musica">Copiar prompt de música</button>`}
           <button class="btn btn-ghost btn-sm" data-act="ficha">Descargar ficha</button>
           ${T.video ? `<button class="btn btn-ghost btn-sm" data-act="srt">Subtítulos .srt</button>` : ""}
@@ -2953,6 +3098,13 @@ window.VS = window.VS || {};
       const b = S.brand(p.marcaId);
       switch (a.dataset.act) {
         case "veoAll": copiar(E.prompsVeoTexto(r), `${r.escenas.length} prompts copiados ✓`); break;
+        case "imgAll": {
+          const fmt = p.formato === "16:9" ? "horizontal 16:9" : p.formato === "1:1" ? "cuadrada 1:1" : p.formato === "4:5" ? "vertical 4:5" : "vertical 9:16";
+          const txt = `Crea ${r.escenas.length} imágenes, una por escena, en formato ${fmt}, sin texto, letras ni logos. Mantén el mismo personaje, paleta y estilo en todas.${r.ancla_visual ? "\nEstilo fijo: " + r.ancla_visual : ""}\n\n` +
+            r.escenas.map((e) => `ESCENA ${e.n}: ${e.prompt_imagen || e.visual}`).join("\n\n");
+          copiar(txt, "Prompts de imagen copiados. Pégalos en Gemini, descarga las imágenes y arrástralas a Ensamblar.").then(() => abrirEn(LINKS.gemini));
+          break;
+        }
         case "ficha": descargar(`${slug(r.titulo)}-ficha.txt`, E.ficha(p, b)); break;
         case "srt": descargar(`${slug(r.titulo)}.srt`, E.srtEscenas(r)); break;
         case "kit": copiar(E.kitTexto(r) + (r.kit.comentario_fijado ? `\n\nComentario fijado: ${r.kit.comentario_fijado}` : ""), "Kit copiado ✓"); break;
@@ -2996,6 +3148,7 @@ window.VS = window.VS || {};
               <button class="btn btn-violet btn-block" id="vGen" ${p ? "" : "disabled"}>🎙️ Generar voz con Gemini</button>
               <div class="row">
                 <button class="btn btn-ghost btn-sm" id="vNav">▶ Escuchar borrador</button>
+                <button class="btn btn-ghost btn-sm" id="vStudio" title="Usa tu suscripción Pro en AI Studio">📋 Copiar y abrir AI Studio</button>
                 <label class="btn btn-ghost btn-sm" style="cursor:pointer">⬆ Subir audio propio<input type="file" id="vUp" accept="audio/*" hidden></label>
               </div>
             </div>
@@ -3037,6 +3190,11 @@ window.VS = window.VS || {};
     const mus = $("#vMus");
     if (mus) mus.addEventListener("click", () => copiar(p.resultado.prompt_musica, "Prompt de música copiado ✓"));
 
+    $("#vStudio").addEventListener("click", async () => {
+      const est = $("#vEstilo").value.trim();
+      await copiar(`${est ? "Read aloud in this style: " + est + "\nVoice: " + voice + "\n\n" : ""}${$("#vTexto").value}`, "Texto copiado. En AI Studio abre la opción de voz (Speech), pégalo, descarga el audio y súbelo aquí con “Subir audio propio”.");
+      abrirEn(LINKS.aistudio);
+    });
     $("#vNav").addEventListener("click", () => {
       const t = $("#vTexto").value.replace(/<[^>]+>/g, " ");
       if (!t.trim()) return toast("No hay texto para escuchar.");
@@ -3261,8 +3419,12 @@ window.VS = window.VS || {};
             <div class="card-head"><span class="card-title">1 · Clips e imágenes</span><span class="muted small">en orden</span></div>
             <label class="drop" id="aDrop">
               <input type="file" id="aFiles" accept="video/*,image/*" multiple>
-              <b>Arrastra aquí tus clips de Veo o imágenes</b><br><span class="small">o haz clic para elegir · MP4, MOV, JPG, PNG</span>
+              <b>Arrastra aquí tus clips de Veo o imágenes</b><br><span class="small">o haz clic para elegir · MP4, MOV, JPG, PNG · se ordenan por nombre</span>
             </label>
+            <div class="btn-row" style="margin-top:8px">
+              <a class="btn btn-ghost btn-sm" href="${LINKS.flow}" target="_blank" rel="noopener">Abrir Flow ↗</a>
+              <a class="btn btn-ghost btn-sm" href="${LINKS.gemini}" target="_blank" rel="noopener">Abrir Gemini ↗</a>
+            </div>
             <div class="clips" id="aClips"></div>
             ${p && p.resultado && p.resultado.escenas && p.resultado.escenas.length ? `<button class="btn btn-violet btn-block" id="aIA" style="margin-top:10px">✨ Crear imágenes o clips con IA desde el guion</button>` : ""}
           </div>
@@ -3390,7 +3552,7 @@ window.VS = window.VS || {};
     });
 
     const agregar = async (files) => {
-      for (const f of files) {
+      for (const f of ordenNatural(files)) {
         try { await inst.agregarArchivo(f); } catch (err) { toast(err.message, "error"); }
       }
       pintarClips();
@@ -3762,7 +3924,23 @@ window.VS = window.VS || {};
                  <p class="small muted">Con clave, el estudio la pide cada vez que abres el navegador. Si la olvidas, borra los datos del sitio en el navegador (perderías lo no respaldado).</p>`}
           </div>
           <div class="card">
+            <div class="card-head"><span class="card-title">🔒 Proteger la app en internet</span></div>
+            <p class="small" style="margin-bottom:12px">Crea una versión cifrada con tu contraseña. Quien abra tu dirección o descargue el archivo solo verá la pantalla de contraseña: sin ella, el archivo no sirve.</p>
+            <label class="field"><span>1 · Archivo de la app sin proteger (el index.html que recibes)</span><input type="file" id="pFile" accept=".html,text/html" style="font-size:.85rem"></label>
+            <div class="row">
+              <label class="field"><span>2 · Contraseña</span><input type="password" id="pPw1" autocomplete="new-password" placeholder="Mínimo 10 caracteres"></label>
+              <label class="field"><span>Repetir contraseña</span><input type="password" id="pPw2" autocomplete="new-password"></label>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-gold" id="pGo">🔒 3 · Crear versión protegida</button>
+              ${(() => { try { return localStorage.getItem(VS.protector.LLAVE); } catch (e) { return null; } })() ? `<button class="btn btn-ghost btn-sm" id="pOlvidar">Olvidar la contraseña en este equipo</button>` : ""}
+            </div>
+            <p class="small muted" style="margin-top:10px">Se descarga un nuevo index.html protegido: súbelo a GitHub en lugar del anterior. Guarda la contraseña en un lugar seguro: si la olvidas, no se puede recuperar.</p>
+          </div>
+          <div class="card">
             <div class="card-head"><span class="card-title">Gemini API</span><a class="btn btn-ghost btn-sm" href="${LINKS.llave}" target="_blank" rel="noopener">Obtener API key ↗</a></div>
+            <label class="check" style="margin-bottom:6px"><input type="checkbox" id="sPro" ${s.modoPro ? "checked" : ""}> <b>Modo Pro:</b> trabajar con mi suscripción de Gemini y Flow (sin gastar API)</label>
+            <p class="small muted" style="margin-bottom:14px">Los botones copian cada prompt y abren Gemini, Flow o AI Studio; después pegas o subes el resultado. La API key queda solo para lo que quieras automatizar.</p>
             <label class="field"><span>API key</span>
               <div class="row" style="grid-template-columns:1fr auto"><input type="password" id="sKey" value="${esc(s.apiKey)}" placeholder="AIza…" autocomplete="off"><button class="btn btn-ghost btn-sm" id="sVer">Ver</button></div>
             </label>
@@ -3822,6 +4000,12 @@ window.VS = window.VS || {};
       aplicarNombre();
     };
     $("#sName").addEventListener("change", guardar);
+    $("#sPro").addEventListener("change", (e) => {
+      s.modoPro = e.target.checked;
+      S.guardarAjustes();
+      estadoApi();
+      toast(s.modoPro ? "Modo Pro activado: los botones abren Gemini, Flow y AI Studio con tu suscripción." : "Modo Pro desactivado: se usa la API.", "ok");
+    });
     $("#sLogo").addEventListener("change", async (e) => {
       const f = e.target.files[0];
       if (!f) return;
@@ -3841,6 +4025,31 @@ window.VS = window.VS || {};
       S.guardarAjustes();
       aplicarNombre();
       toast("Logo quitado: vuelve el micrófono.");
+      vAjustes();
+    });
+    $("#pGo").addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      const f = $("#pFile").files[0];
+      const a = $("#pPw1").value, b2 = $("#pPw2").value;
+      if (!f) return toast("Elige el archivo index.html de la app.", "error");
+      if (a.length < 10) return toast("Usa una contraseña de al menos 10 caracteres.", "error");
+      if (a !== b2) return toast("Las contraseñas no coinciden.", "error");
+      cargando(btn, true, "Cifrando…");
+      try {
+        const blob = await VS.protector.proteger(await f.text(), a);
+        descargar("index.html", blob);
+        $("#pPw1").value = $("#pPw2").value = "";
+        toast("Versión protegida descargada ✓ Súbela a GitHub con el nombre index.html.", "ok");
+      } catch (err) {
+        toast(err.message, "error");
+      } finally {
+        cargando(btn, false);
+      }
+    });
+    const po = $("#pOlvidar");
+    if (po) po.addEventListener("click", () => {
+      try { localStorage.removeItem(VS.protector.LLAVE); } catch (err) { /* */ }
+      toast("Listo: la próxima vez pedirá la contraseña en este equipo.");
       vAjustes();
     });
     const lk = $("#sLockOk");
@@ -3981,7 +4190,7 @@ window.VS = window.VS || {};
           <p>Elige empresas y cantidades. El estudio propone temas, escribe cada guion con el perfil de la empresa y genera las voces.</p></div>
       </div>
       ${B.length ? "" : `<div class="note warn" style="margin-bottom:14px">Primero crea tus empresas en <a href="#/marcas">Empresas</a>.</div>`}
-      ${hayKey ? "" : `<div class="note warn" style="margin-bottom:14px">Sin API key de Gemini solo se crean borradores base (sin IA y sin voz). Agrégala en <a href="#/ajustes">Ajustes</a> para producir en automático.</div>`}
+      ${modoPro() ? `<div class="note" style="margin-bottom:14px">Modo Pro: usa la tarjeta <b>⭐ Lote en tu Gemini</b> para crear todos los guiones con tu suscripción. Las voces las creas en AI Studio y las subes en Voz.</div>` : hayKey ? "" : `<div class="note warn" style="margin-bottom:14px">Sin API key de Gemini solo se crean borradores base (sin IA y sin voz). Agrégala en <a href="#/ajustes">Ajustes</a>, o activa el Modo Pro para usar tu suscripción.</div>`}
       <div class="grid-2">
         <div class="sticky">
           <div class="card">
@@ -4002,8 +4211,8 @@ window.VS = window.VS || {};
           <div class="card">
             <div class="card-head"><span class="card-title">3 · Temas</span></div>
             <div class="checks" style="margin-bottom:10px">
-              <label class="check"><input type="radio" name="lModo" value="auto" ${c.modo === "auto" ? "checked" : ""} ${hayKey ? "" : "disabled"}> La IA propone temas distintos</label>
-              <label class="check"><input type="radio" name="lModo" value="mios" ${c.modo === "mios" || !hayKey ? "checked" : ""}> Mis temas</label>
+              <label class="check"><input type="radio" name="lModo" value="auto" ${c.modo === "auto" && (hayKey || modoPro()) ? "checked" : ""} ${hayKey || modoPro() ? "" : "disabled"}> La IA propone temas distintos</label>
+              <label class="check"><input type="radio" name="lModo" value="mios" ${c.modo === "mios" || !(hayKey || modoPro()) ? "checked" : ""}> Mis temas</label>
             </div>
             <textarea id="lMios" rows="4" placeholder="Un tema por línea. Se reparten en orden entre las piezas.&#10;Ej: Promo 2x1 del viernes&#10;Lanzamiento del nuevo menú">${esc(c.mios)}</textarea>
           </div>
@@ -4034,6 +4243,17 @@ window.VS = window.VS || {};
             </div>
             <p class="note" style="margin-top:12px">Puedes seguir usando el estudio mientras trabaja; no cierres esta pestaña. Si Gemini llega a su límite, el estudio espera y reintenta solo.</p>
           </div>
+          ${modoPro() || !hayKey ? `
+          <div class="card" style="border-color:rgba(139,92,246,.45)">
+            <div class="card-head"><span class="card-title">⭐ Modo Pro · lote en tu Gemini</span></div>
+            <p class="small" style="margin-bottom:12px">Arma todos los guiones de una empresa en una sola conversación de Gemini, con tu suscripción.</p>
+            <label class="field"><span>Empresa de este lote</span><select id="lProEmp">${B.filter((b) => sel.has(b.id)).map((b) => `<option value="${b.id}">${esc(b.nombre)}</option>`).join("") || `<option value="">Marca una empresa</option>`}</select></label>
+            <div class="btn-stack">
+              <button class="btn btn-gold" id="lProCopiar">📋 1 · Copiar prompt del lote y abrir Gemini</button>
+              <button class="btn btn-violet" id="lProPegar">📥 2 · Pegar la respuesta del lote</button>
+            </div>
+            <p class="small muted" style="margin-top:10px">Si la respuesta queda cortada, escribe en Gemini “continúa” y copia todo junto. Para varias empresas, repite con la siguiente.</p>
+          </div>` : ""}
           <div class="card">
             <div class="card-head"><span class="card-title">Progreso</span><span class="mono muted small" id="lCuenta"></span></div>
             <div class="timebar"><div id="lBar"></div></div>
@@ -4084,6 +4304,46 @@ window.VS = window.VS || {};
       correrLote(cfg, hayKey);
     });
     $("#lStop").addEventListener("click", () => { lote.cancelar = true; toast("Deteniendo después de la pieza actual…"); });
+    const piezasPro = (cfg, bid) => {
+      const mios = cfg.mios.split("\n").map((x) => x.trim()).filter(Boolean);
+      const out = [];
+      let k = 0;
+      Object.entries(cfg.cant).forEach(([tipo, n]) => {
+        for (let i = 0; i < n; i++) out.push({ tipo, duracion: cfg.dur[tipo], tema: cfg.modo === "mios" && mios.length ? mios[k++ % mios.length] : "" });
+      });
+      return out;
+    };
+    const proCopiar = $("#lProCopiar");
+    if (proCopiar) proCopiar.addEventListener("click", async () => {
+      const cfg = leer(), bid = $("#lProEmp").value, b = S.brand(bid);
+      if (!b) return toast("Marca al menos una empresa en el paso 1.", "error");
+      const piezas = piezasPro(cfg, bid);
+      if (!piezas.length) return toast("Elige cuántas piezas crear en el paso 2.", "error");
+      lote.pro = { bid, piezas, cfg };
+      const usados = S.state.projects.filter((p) => p.marcaId === bid).map((p) => p.tema || p.titulo).filter(Boolean);
+      await copiar(E.promptLote(b, piezas, usados), `Prompt de ${piezas.length} piezas copiado. Pégalo en Gemini y copia toda la respuesta.`);
+      abrirEn(LINKS.gemini);
+    });
+    const proPegar = $("#lProPegar");
+    if (proPegar) proPegar.addEventListener("click", () => pegarRespuesta("Pegar la respuesta del lote", (t) => {
+      const res = E.parseLote(t);
+      const info = lote.pro && lote.pro.bid === $("#lProEmp").value ? lote.pro : { bid: $("#lProEmp").value, piezas: piezasPro(leer()), cfg: leer() };
+      const b = S.brand(info.bid);
+      if (!b) throw new Error("Elige la empresa del lote.");
+      const fecha = info.cfg.fechas && info.cfg.desde ? new Date(info.cfg.desde + "T12:00:00") : null;
+      lote.cola = [];
+      res.forEach((x, i) => {
+        const base = info.piezas[(x.n || i + 1) - 1] || info.piezas[i] || { tipo: E.TIPOS[x.tipo] ? x.tipo : "short", duracion: 30 };
+        const tipo = E.TIPOS[x.tipo] ? x.tipo : base.tipo;
+        const p = nuevoProyecto(tipo, info.bid);
+        Object.assign(p, { duracion: base.duracion || p.duracion, tema: base.tema || x.r.titulo, resultado: x.r, titulo: x.r.titulo || base.tema || E.TIPOS[tipo].label, estado: "guion", plataformas: PLAT[tipo] });
+        if (fecha) { p.fecha = fecha.toISOString().slice(0, 10); fecha.setDate(fecha.getDate() + info.cfg.cada); }
+        S.upsertProject(p);
+        lote.cola.push({ bid: info.bid, tipo, estado: "listo", msg: "", pid: p.id, tema: p.tema, titulo: p.titulo });
+      });
+      pintarCola();
+      toast(`${res.length} guiones de ${b.nombre} importados ✓`, "ok");
+    }));
     resumen();
     pintarCola();
   }
