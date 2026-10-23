@@ -2432,11 +2432,16 @@ window.VS = window.VS || {};
   const view = $("#view");
   const esc = (t) => String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+  /* Los enlaces usan la cuenta de Google elegida en Ajustes (authuser), para no abrir siempre la cuenta anterior. */
+  const conCuenta = (url) => {
+    const c = String((S.state.settings && S.state.settings.cuentaGoogle) || "").trim();
+    return c ? url + (url.includes("?") ? "&" : "?") + "authuser=" + encodeURIComponent(c) : url;
+  };
   const LINKS = {
-    flow: "https://labs.google/fx/tools/flow",
-    gemini: "https://gemini.google.com/app",
-    aistudio: "https://aistudio.google.com/",
-    llave: "https://aistudio.google.com/apikey",
+    get flow() { return conCuenta("https://labs.google/fx/tools/flow"); },
+    get gemini() { return conCuenta("https://gemini.google.com/app"); },
+    get aistudio() { return conCuenta("https://aistudio.google.com/"); },
+    get llave() { return conCuenta("https://aistudio.google.com/apikey"); },
   };
   const COL = { idea: "#94a0bb", guion: "#60a5fa", produccion: "#f5a524", listo: "#34d399", publicado: "#c4b5fd" };
 
@@ -3941,8 +3946,11 @@ window.VS = window.VS || {};
             <div class="card-head"><span class="card-title">Gemini API</span><a class="btn btn-ghost btn-sm" href="${LINKS.llave}" target="_blank" rel="noopener">Obtener API key ↗</a></div>
             <label class="check" style="margin-bottom:6px"><input type="checkbox" id="sPro" ${s.modoPro ? "checked" : ""}> <b>Modo Pro:</b> trabajar con mi suscripción de Gemini y Flow (sin gastar API)</label>
             <p class="small muted" style="margin-bottom:14px">Los botones copian cada prompt y abren Gemini, Flow o AI Studio; después pegas o subes el resultado. La API key queda solo para lo que quieras automatizar.</p>
-            <label class="field"><span>API key</span>
-              <div class="row" style="grid-template-columns:1fr auto"><input type="password" id="sKey" value="${esc(s.apiKey)}" placeholder="AIza…" autocomplete="off"><button class="btn btn-ghost btn-sm" id="sVer">Ver</button></div>
+            <label class="field"><span>Cuenta de Google Pro (opcional) · 0 = primera cuenta del navegador, 1 = segunda, 2 = tercera… o escribe el correo</span>
+              <input type="text" id="sCuenta" value="${esc(s.cuentaGoogle || "")}" placeholder="Ej: 1  o  micuentapro@gmail.com" autocomplete="off">
+            </label>
+            <label class="field"><span>API key (pega aquí la de tu cuenta Pro)</span>
+              <div class="row" style="grid-template-columns:1fr auto auto"><input type="password" id="sKey" value="${esc(s.apiKey)}" placeholder="AIza…" autocomplete="off"><button class="btn btn-ghost btn-sm" id="sVer">Ver</button><button class="btn btn-red btn-sm" id="sKeyNo">Quitar key</button></div>
             </label>
             <div class="row">
               <label class="field"><span>Modelo de texto</span><input type="text" id="sMT" value="${esc(s.modelText)}" list="lMT"></label>
@@ -3991,7 +3999,7 @@ window.VS = window.VS || {};
     const guardar = () => {
       Object.assign(s, {
         appName: $("#sName").value.trim() || "Vocalis Studio",
-        apiKey: $("#sKey").value.trim(), modelText: $("#sMT").value.trim() || "gemini-3.8-flash", modelTTS: $("#sMV").value.trim() || "gemini-3.8-flash-tts",
+        apiKey: $("#sKey").value.trim(), cuentaGoogle: $("#sCuenta").value.trim(), modelText: $("#sMT").value.trim() || "gemini-3.8-flash", modelTTS: $("#sMV").value.trim() || "gemini-3.8-flash-tts",
         modelImage: $("#sMI").value.trim() || "gemini-nano-banana-2.1", modelVideo: $("#sMVi").value.trim() || "gemini-omni-1.1-flash",
         wps: Math.max(1.5, Math.min(4, Number($("#sWps").value) || 2.5)), clip: Number($("#sClip").value), promptLang: $("#sLang").value,
       });
@@ -4000,6 +4008,13 @@ window.VS = window.VS || {};
       aplicarNombre();
     };
     $("#sName").addEventListener("change", guardar);
+    $("#sCuenta").addEventListener("change", () => { guardar(); toast("Cuenta guardada ✓ Gemini, Flow y AI Studio se abrirán con esa cuenta.", "ok"); vAjustes(); });
+    $("#sKeyNo").addEventListener("click", () => {
+      if (!confirm("¿Quitar la API key guardada? Tus proyectos y empresas no se tocan.")) return;
+      $("#sKey").value = "";
+      guardar();
+      toast("API key quitada. Pega la nueva y pulsa Guardar.", "ok");
+    });
     $("#sPro").addEventListener("change", (e) => {
       s.modoPro = e.target.checked;
       S.guardarAjustes();
